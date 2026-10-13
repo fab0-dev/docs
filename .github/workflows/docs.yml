@@ -1,0 +1,39 @@
+name: docs
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"   # weekly full link check
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Markdown lint
+        run: uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
+      - name: Spelling
+        run: uvx codespell
+      - name: Links (offline)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --include-fragments 'docs/**/*.md' README.md CONTRIBUTING.md
+          fail: true
+
+  links:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Links (full)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress 'docs/**/*.md' README.md CONTRIBUTING.md
+          fail: true
