@@ -1,0 +1,21 @@
+# The docs factory: issues of type Docs in fab0-dev/docs run the docs pipeline.
+schema: 1
+repos:
+  home:    {path: ., github: fab0-dev/docs, owner: docs-owner}
+  product: {path: ../fab0, github: fab0-dev/fab0, owner: product-owner, key: PR}         # read: specs, roadmap
+  core:    {path: ../fab0-core, github: fab0-dev/fab0-core, owner: developer, key: CO}   # read: schemas, resolver, skills
+  recipes: {path: ../fab0-recipes, github: fab0-dev/fab0-recipes, owner: developer, key: RC}
+people:                                   # roles → GitHub users
+  docs-owner:    {github: [eugenefurs]}   # approves briefs, reviews and merges docs pull requests
+  product-owner: {github: [eugenefurs]}
+  developer:     {github: [eugenefurs]}
+tracker:
+  kind: github-projects
+  owner: fab0-dev
+  project: 2
+  fields: {stage: Stage, run: Run, waiting: Waiting on}
+pipelines: [docs]
+models:
+  claude-code: {deep: opus, balanced: sonnet, fast: haiku}
+profiles:
+  cheap: {models: {claude-code: {deep: sonnet}}}

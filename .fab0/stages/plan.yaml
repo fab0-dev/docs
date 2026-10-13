@@ -1,0 +1,3 @@
+stage: plan
+action: plan                     # tasks.yaml → Task sub-issues, each assigned to the docs owner
+inputs: [tasks]

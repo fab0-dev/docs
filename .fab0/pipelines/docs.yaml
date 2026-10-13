@@ -1,0 +1,10 @@
+pipeline: docs
+item: {issue_type: Docs}
+stages:
+  - brief                # docs owner; gate: the brief pull request
+  - plan                 # Task sub-issues from tasks.yaml
+  - foreach: tasks       # each task: one page or section, its own sub-issue, branch and pull request
+    item: {issue_type: Task}
+    stages: [write]      # gate: the docs reviewer agent
+    gate: human          # the task pull request; merging it closes the task
+  - deliver              # once every task is merged
