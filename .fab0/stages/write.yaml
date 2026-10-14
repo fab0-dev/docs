@@ -1,8 +1,0 @@
-stage: write
-agent: docs-writer
-model: balanced
-inputs: [brief, tasks]
-repos: {write: [task], read: [all]}
-return: {questions: optional}
-owner: repo-owner
-gate: {agent: docs-reviewer, model: deep}   # reviewed on a different model from the one that wrote
