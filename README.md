@@ -1,5 +1,7 @@
 # fab0 docs
 
+> **Being rewritten.** These pages describe fab0 0.5, a delivery factory. fab0 is being rebuilt as a toolkit for building factories, and the pages are rewritten in the refactor's step R7. The plan and the target model are in [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md).
+
 The user documentation of [fab0](https://github.com/fab0-dev/fab0), which runs software delivery as pipelines of Claude Code agents.
 
 **Start reading at [docs/index.md](docs/index.md).**

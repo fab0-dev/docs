@@ -1,6 +1,0 @@
-artifact: brief
-format: markdown
-location: {repo: home, path: "briefs/{run}.md"}
-verify:
-  - sections: [Intent, Readers, Sources, Findings, Outline, Acceptance, Open questions]
-keep: durable

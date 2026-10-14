@@ -1,4 +1,0 @@
-stage: deliver
-action: deliver                  # appends the delivered tasks to the brief; its pull request closes the Docs issue
-inputs: [brief]
-gate: human

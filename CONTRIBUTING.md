@@ -30,6 +30,8 @@ Write one kind of page per file. Link to the other kinds instead of mixing them.
 
 ## Running a Docs issue
 
+> **Suspended.** This repository's fab0 pipeline is archived during the refactor and rebuilt on the new core in step R7 of [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md). Until then, docs changes are ordinary pull requests. The rest of this section describes the 0.5 pipeline.
+
 A Docs issue runs this repository's own fab0 pipeline (`.fab0/`):
 
 | Stage | Who | What | Gate |
