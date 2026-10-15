@@ -1,0 +1,14 @@
+- id: T1
+  title: "How-to: choose how a pipeline uses git, and list it in the index"
+  repo: home
+  files:
+    - docs/how-to/choose-git-workflow.md
+    - docs/index.md
+  acceptance: [A1, A2, A3, A4, A5, A6, A7]
+- id: T2
+  title: "Branches and merges: give runs that write no files their own section, and link the how-to"
+  repo: home
+  files:
+    - docs/explanation/branching.md
+  depends_on: [T1]
+  acceptance: [A8]
