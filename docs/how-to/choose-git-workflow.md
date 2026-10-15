@@ -28,9 +28,9 @@ On the ledger branch nothing merges. An auto gate's approval, or a human gate's 
 `git.auto_merge` has `into`, a list of `run` and `base`. Merging into the base branch also needs `allow_base: true`; the schema refuses `into: [base]` without it.
 
 - **`run`:** `apply` merges units with gate `none` and label-decided human gates into the run branch. A gate with `merge: auto` passes `validate` only if `into` holds `run`, which is the default.
-- **`flat`:** a unit with gate `none`, a label-decided human gate or `merge: auto` has the base branch as its parent. Unless `git.auto_merge` has `into: [base]` and `allow_base: true`, it waits, and a person merges its pull request. With both, `apply` merges it by pushing to the base branch. `validate` refuses `merge: auto` unless `into` holds `base`. A ruleset that requires pull requests on the base branch must let the fab0 login bypass it, or `apply`'s merges fail; see [set up GitHub](github-setup.md). Units inside a gated block merge into the block's branch either way, so this doesn't hold them, and `validate` checks a `merge: auto` gate there against `run`, not `base`.
-- **A ledger branch:** leave `merge: auto` off, since the gate already decides. `validate` still checks the target of a `merge: auto` gate.
-- **`pr.merge`:** merges the run branch into the base branch, so it only acts under `run`; under `flat` it does nothing. In either case `validate` refuses it unless `into` holds `base` and `allow_base` is `true`. It pushes to the base branch too, so the same ruleset rule applies.
+- **`flat`:** a unit with gate `none`, a label-decided human gate or `merge: auto` has the base branch as its parent. Unless `git.auto_merge` has `into: [base]` and `allow_base: true`, it waits, and a person merges its pull request. With both, `apply` merges it by pushing to the base branch. `validate` refuses `merge: auto` unless `into` holds `base`. `apply` merges by pushing, so a ruleset that requires pull requests on the base branch refuses these merges. [Set up GitHub](github-setup.md#5-the-base-branch) tells you to require a pull request there, and describes no bypass for the fab0 login: choose `flat` with `allow_base` only if your base branch accepts `apply`'s pushes, otherwise leave `auto_merge` at its default and merge each unit's pull request yourself. Units inside a gated block merge into the block's branch either way, so this doesn't hold them, and `validate` checks a `merge: auto` gate there against `run`, not `base`.
+- **A ledger branch:** leave `merge: auto` off, since the gate already decides. If a gate has it, `validate` still checks the target: under `flat`, which goes with a ledger branch, `into` must hold `base` with `allow_base: true`; under `run`, it must hold `run`.
+- **`pr.merge`:** merges the run branch into the base branch, so it only acts under `run`; under `flat` it does nothing. In either case `validate` refuses it unless `into` holds `base` and `allow_base` is `true`. It pushes to the base branch too, so a ruleset that requires pull requests there refuses it.
 
 ## 4. Write the settings
 
@@ -96,7 +96,7 @@ fab0-resolve validate
 |---|---|
 | `run branching needs git.run-branch, which creates the run branch` | Add `git.run-branch` to the pipeline's `onStart`, or use `branching: flat` |
 | `no step writes files, so the run opens no pull request: set ledger.branch in fab0.yaml` | Set `ledger.branch` (step 2) |
-| `merge auto would merge into the run branch` or `the base branch, which git.auto_merge.into doesn't allow` | Add `run` (under `run`) or `base` (under `flat`) to `git.auto_merge.into`, or drop `merge: auto` |
+| `merge auto would merge into the run branch, which git.auto_merge.into doesn't allow`, or the same message with `base branch` | Add `run` (under `run`) or `base` (under `flat`) to `git.auto_merge.into`, or drop `merge: auto` |
 | `pr.merge merges into the base branch, which git.auto_merge doesn't allow` | Set `into: [base]` with `allow_base: true`, or remove `pr.merge` |
 | `git.auto_merge` error naming `allow_base` | Add `allow_base: true` beside `into: [base]` |
 
@@ -105,5 +105,5 @@ fab0-resolve validate
 - [Gates](../explanation/gates.md): who merges for each gate
 - [Pipeline reference](../reference/pipeline.md)
 - [Actions reference](../reference/actions.md)
-- [Set up GitHub](github-setup.md): the base branch ruleset
+- [Set up GitHub](github-setup.md#5-the-base-branch): the base branch ruleset
 - [Use an example](use-an-example.md)
