@@ -1,0 +1,34 @@
+step: write
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T3
+unit: T3
+model: sonnet
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+inputs:
+  brief: sha256:28bb4a040f60bb0162e2a56d8a97c8e9d2079de1d0882769a566c7e1fc611628
+  tasks: sha256:20cba1761fff451299f1b1b4fbdcb2032abc13e6e4d5c1b5f189a45b4e02e191
+  unit: sha256:7c4a601bc5aedd9d838e4da6d9115ab15f53488d3acef65b5faba44829f6d508
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+rework:
+- rejected
+claims:
+- home:docs/reference/project.md
+gate:
+  type: auto
+summary: 'Changed docs/reference/project.md only: the `auto_merge` row in the `git`
+  table. It now says that `validate` requires `run` in `into` for every `merge: auto`
+  gate under `run` branching and `base` under `flat`. This covers a gate that merges
+  into a gated block''s branch (wiring.py:552-558@41466ad). It then says that `into:
+  [base]` with `allow_base: true` covers every merge into the base branch: gate `none`,
+  label-decided human gates and `merge: auto` whose parent is the base branch, and
+  `pr.merge`. Without both, a person merges into the base branch and `pr.merge` is
+  refused. The row also says that units inside a gated block are not held by the base-branch
+  rule, but `validate` still checks their `merge: auto` gates. I removed the false
+  claim that `auto_merge` does not hold block units for `merge: auto`. The row now
+  meets A9. Checks: pymarkdownlnt and codespell pass with no output; check-reference.py
+  passes with FAB0_CORE set (''every field of 6 pages matches its schema''). F4 still
+  stands: the description in `project.json:139` needs a code change in fab0-core.'
