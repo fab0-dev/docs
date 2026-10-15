@@ -49,7 +49,7 @@ A part of a tracker item, read and never written by a step.
 | Field | Required | Meaning |
 |---|---|---|
 | `of` | no | `run` (default): the run's pull request. `unit`: the current unit's pull requests |
-| `part` | yes | `body`, `reviews` (reviews that ask for changes or comment, from every pull request of the unit's branch), or `diff` |
+| `part` | yes | `body`, `reviews` (reviews that ask for changes or comment, and people's conversation comments, from every pull request of the unit's branch, oldest first; comments fab0 posts, whose body starts with `<!-- fab0:`, are left out, and a merged pull request's stop counting), or `diff` |
 
 ## `tool`
 
