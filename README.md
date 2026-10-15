@@ -2,8 +2,6 @@
 
 The user documentation of [fab0](https://github.com/fab0-dev/fab0), a toolkit for building and operating software factories.
 
-> These pages describe fab0 0.6, released at the end of the refactor in [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md).
-
 **Start reading at [docs/index.md](docs/index.md).**
 
 The docs are plain Markdown, read on GitHub. They follow [Diátaxis](https://diataxis.fr/):

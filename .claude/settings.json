@@ -16,7 +16,7 @@
     }
   },
   "enabledPlugins": {
-    "fab0@fab0": false,
+    "fab0@fab0": true,
     "example-skills@anthropic-agent-skills": true
   },
   "permissions": {

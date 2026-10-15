@@ -30,8 +30,6 @@ Write one kind of page per file. Link to the other kinds instead of mixing them.
 
 ## Running a Docs issue
 
-> **From fab0 0.6.** The factory is on schema 2, which the installed 0.5 release refuses, so the `fab0` plugin stays disabled here until 0.6 is released in step R8 of [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md). Until then, docs changes are ordinary pull requests.
-
 A Docs issue runs this repository's own fab0 factory (`.fab0/`) on its own branch, `fab0/<issue>/base`:
 
 | Step | Who | What | Gate |
