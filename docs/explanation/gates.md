@@ -32,15 +32,15 @@ A human gate waits for a person:
 - **Through a pull request** (default). The unit's pull request is ready for review, and merging it accepts the work. The `owner` role is whose turn it is.
 - **Through a label** (`via: label`), for units without a pull request, such as work recorded only in the tracker. Adding the label to the run's item accepts the work.
 
-To ask for changes, a person leaves a review on the pull request. When the step lists its pull request's reviews among its inputs (a `pr` artifact with `part: reviews`), the review sends the unit back to its agent, with the review in its brief. On their own pull request, GitHub lets a person leave only a **Comment** review, and that counts. A conversation comment doesn't.
+To ask for changes, a person leaves a review or a conversation comment on the pull request. When the step lists its pull request's reviews among its inputs (a `pr` artifact with `part: reviews`), the review or comment sends the unit back to its agent, with it in its brief. On their own pull request, GitHub lets a person leave only a **Comment** review, and that counts. A plain conversation comment counts too, whoever the author is, except the comments fab0 itself posts (their body starts with `<!-- fab0:`).
 
 ## Whoever merges decides
 
-A unit whose work is merged into the branch it targets is done, whatever its gate said. A person who merges an escalated or rejected unit overrides the gate, because the tracker and git are where people's decisions live. For the same reason, reviews on a unit's pull request stop counting once it is merged.
+A unit whose work is merged into the branch it targets is done, whatever its gate said. A person who merges an escalated or rejected unit overrides the gate, because the tracker and git are where people's decisions live. For the same reason, reviews and conversation comments on a unit's pull request stop counting once it is merged.
 
 ## Questions
 
-An agent may return `questions` when it can't decide something only a person can. The unit then waits, and its questions are posted once on its pull request. A person answers by changing an input: the tracker item, a review on the pull request, or a file. The changed input sends the unit back to its agent. Its failed checks don't count against it meanwhile.
+An agent may return `questions` when it can't decide something only a person can. The unit then waits, and its questions are posted once on its pull request. A person answers by changing an input: the tracker item, a review or a conversation comment on the pull request, or a file. The changed input sends the unit back to its agent. Its failed checks don't count against it meanwhile.
 
 ## Gated blocks
 
