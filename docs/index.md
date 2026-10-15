@@ -2,7 +2,7 @@
 
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-> **fab0 0.6.** These pages describe fab0 0.6, the toolkit. It is released at the end of the refactor described in [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md); until then, the installed release is 0.5, a delivery factory these pages don't describe.
+These pages describe the latest release of the `fab0` plugin.
 
 ## Status markers
 
