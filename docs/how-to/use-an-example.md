@@ -57,6 +57,23 @@ Create the issue types, labels and board fields the example uses, and protect th
 
    It must print `"ok": true`.
 
+### Update the plugin
+
+To move to a newer fab0 release, update the plugin, then start a new Claude Code session:
+
+```bash
+claude plugin update fab0@fab0 --scope project
+```
+
+A session that was open during the update, or a new one that still has an older cached version first on the `PATH`, runs the older engine. The engine compares its release with the plugin release Claude Code has installed for the project. When it is older, it stops before it does any work. `/fab0:run` and `/fab0:inbox` show the refusal and stop: nothing is fetched, applied, handed out or shown. The message says:
+
+- the engine's release and path, and the installed release and path;
+- a fix: each orphaned cached version directory to remove (a version directory beside the installed one that no install record uses), then to start a new Claude Code session.
+
+To fix it, remove the directories the message names, and start a new Claude Code session. The engine never removes them itself. If the message names no directory, only start a new session. Then run the command again.
+
+An engine newer than the installed plugin, for example one run from a development checkout, runs as usual. If Claude Code's install record can't be read, the command runs and carries a warning that the engine's release couldn't be checked, and why.
+
 Commit `.fab0/` and `.claude/`, and push them to the base branch.
 
 ## 6. Run it

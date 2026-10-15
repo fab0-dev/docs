@@ -39,6 +39,14 @@ Every command prints one JSON object.
 | `--gate` | `record` | Record the unit's auto gate: its verdict, or `--exit` for a command gate |
 | `--output FILE` | `record` | A command gate's output, kept as the finding when it fails |
 
+### Older engine
+
+Every command that reads the project (`validate`, `status`, `next`, `record`, `apply`, `inbox`) first compares the engine's release with the plugin release Claude Code has installed for the project, read from the install record under `CLAUDE_CONFIG_DIR`. A local record for the project takes precedence over a project one, and a project one over a user one.
+
+When the engine is older, the command exits 1 and writes nothing: no claim, ledger entry, git or tracker change. It prints `"ok": false`, an `error` naming both releases and their paths, and a `fix` list: each orphaned cached version directory to remove, then to start a new Claude Code session. `/fab0:run` and `/fab0:inbox` show the `error` and every `fix` line, and stop. See [update the plugin](../how-to/use-an-example.md#update-the-plugin).
+
+An engine of the same or a newer release runs as before. With no install record for the project, it also runs as before. With an unreadable record or release, `validate`, `inbox` and the run commands run and add a warning that the release couldn't be checked. `fab0-resolve --version` is never refused.
+
 ### Exit codes
 
 | Code | Meaning |
@@ -53,4 +61,5 @@ Every command prints one JSON object.
 
 | Variable | Meaning |
 |---|---|
+| `CLAUDE_CONFIG_DIR` | Claude Code's configuration directory. The engine reads the plugin install record, `plugins/installed_plugins.json`, and the plugin cache under it. Default: `~/.claude` |
 | `FAB0_GH_FAKE` | A JSON file to read and write tracker facts in, instead of GitHub. For tests |
