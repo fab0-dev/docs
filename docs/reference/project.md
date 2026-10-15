@@ -79,7 +79,7 @@ A pipeline may override `branching` and `auto_merge` in its own `git`.
 | `base` | `main` | The base branch |
 | `branching` | `run` | `run`: the run works on a run branch, each unit on a sub-branch whose pull request targets its parent, and only the run's pull request reaches the base branch. `flat`: each unit's pull request targets the base branch |
 | `branches` | | Branch name templates: `run` (default `fab0/{run}/base`, must contain `{run}`) and `unit` (default `fab0/{run}/{unit}`, must contain `{unit}`) |
-| `auto_merge` | into run branches | Where an auto gate with `merge: auto` may merge: `into`, a list of `run` and `base`. Merging into the base branch also needs `allow_base: true` |
+| `auto_merge` | `{into: [run]}` | Where `apply` may merge without a person: `into`, a list of `run` and `base`, and `allow_base`. `validate` requires `run` in `into` for every `merge: auto` gate under `run` branching and for every one inside a gated block, whatever the branching; for any other `merge: auto` gate under `flat`, it requires `base`. `into: [base]` with `allow_base: true` covers every merge into the base branch: a unit with gate `none`, a label-decided human gate or `merge: auto` whose parent is the base branch (under `flat` branching), and `pr.merge`. Without both, a person merges into the base branch: a unit's pull request that targets it waits for a person, and `pr.merge` is refused. Units inside a gated block merge into the block's branch, so the base-branch rule does not hold them. |
 
 ## `parallel`
 

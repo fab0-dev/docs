@@ -1,0 +1,28 @@
+step: write
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T3
+unit: T3
+model: sonnet
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+inputs:
+  brief: sha256:28bb4a040f60bb0162e2a56d8a97c8e9d2079de1d0882769a566c7e1fc611628
+  tasks: sha256:20cba1761fff451299f1b1b4fbdcb2032abc13e6e4d5c1b5f189a45b4e02e191
+  unit: sha256:7c4a601bc5aedd9d838e4da6d9115ab15f53488d3acef65b5faba44829f6d508
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+claims:
+- home:docs/reference/project.md
+gate:
+  type: auto
+summary: 'Changed docs/reference/project.md only: the `git` table''s `auto_merge`
+  row now says where `apply` may merge without a person. `into: [run]` covers `merge:
+  auto` into run branches. `into: [base]` with `allow_base: true` covers every merge
+  into the base branch: gate `none`, label-decided human gates and `merge: auto` for
+  a unit whose parent is the base branch, plus `pr.merge`. Without both, a person
+  merges the unit''s pull request into the base branch, and `pr.merge` is refused.
+  Checks: pymarkdownlnt and codespell pass; check-reference.py passes with FAB0_CORE
+  set. F4 still stands: the `auto_merge` description in `project.json` needs a code
+  change in fab0-core.'
