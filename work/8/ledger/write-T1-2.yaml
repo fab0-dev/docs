@@ -1,0 +1,29 @@
+step: write
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T1
+unit: T1
+model: sonnet
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+inputs:
+  brief: sha256:28bb4a040f60bb0162e2a56d8a97c8e9d2079de1d0882769a566c7e1fc611628
+  tasks: sha256:20cba1761fff451299f1b1b4fbdcb2032abc13e6e4d5c1b5f189a45b4e02e191
+  unit: sha256:77f8a2fb1cc7d406bf3d3f06a0a7cc46271cdb5e4be95d7905e4cfad2ed48320
+  reviews: sha256:ea387c70f0788d953f336bb4c8306d1f3d10f0655668deaebc462caa2c7c1c3b
+rework:
+- stale
+claims:
+- home:docs/how-to/choose-git-workflow.md
+- home:docs/index.md
+gate:
+  type: auto
+summary: 'Reworked docs/how-to/choose-git-workflow.md; the index entry from attempt
+  1 is kept. Per the review, the page now needs fab0 0.6.2 or later, because 0.6.2
+  makes apply merge label-decided gates. It also says that validate checks a merge:
+  auto gate inside a gated block against run, not base. I read that in wiring.py in
+  fab0-core, which is at 0.6.2. The other claims are unchanged. This meets A1 to A7.
+  The review listed no other points to fix. Checks: pymarkdownlnt and codespell are
+  clean. check-reference.py passes, run with FAB0_CORE set.'

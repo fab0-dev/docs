@@ -1,0 +1,67 @@
+step: write
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T2
+base:
+  branch: fab0/8/base
+  sha: 1a45b8c249ed4ee834da1c6bf09779e89f855735
+unit: T2
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: reject
+summary: 'Truth fails on one point. Line 29 still says ''nothing may push to the base
+  branch''. Line 25 on the same page now says apply merges into the base branch when
+  git.auto_merge allows it. At 0.6.1 that is true (schedule.py:907-908, wiring.py:277-280
+  at 41466ad), so the page contradicts itself and the sentence is false for a project
+  that sets allow_base.; A8 and A10 are met: the ledger branch has its own section
+  and is said to apply whatever the branching; the Flat branching section says who
+  merges into the base branch and why; the page links the how-to twice.; The other
+  claims match the pinned sources. Gate none, label-decided and merge: auto units
+  are held unless base_allowed (schedule.py:902-908). Units in a gated block have
+  the block''s branch as parent (schedule.py:335-337). ledger.branch is used whenever
+  no step writes files (schedule.py:131-132). Run branching still requires git.run-branch,
+  and written() always includes home, so a run branch is created (wiring.py:312-313,
+  actions.py:16-24).; Scope is fine: only docs/explanation/branching.md changed. pymarkdownlnt,
+  codespell and check-reference.py (with FAB0_CORE set) pass. The links to ../how-to/choose-git-workflow.md
+  and ../reference/project.md#git resolve.'
+verdict:
+  decision: reject
+  reasons:
+  - Truth fails on one point. Line 29 still says 'nothing may push to the base branch'.
+    Line 25 on the same page now says apply merges into the base branch when git.auto_merge
+    allows it. At 0.6.1 that is true (schedule.py:907-908, wiring.py:277-280 at 41466ad),
+    so the page contradicts itself and the sentence is false for a project that sets
+    allow_base.
+  - 'A8 and A10 are met: the ledger branch has its own section and is said to apply
+    whatever the branching; the Flat branching section says who merges into the base
+    branch and why; the page links the how-to twice.'
+  - 'The other claims match the pinned sources. Gate none, label-decided and merge:
+    auto units are held unless base_allowed (schedule.py:902-908). Units in a gated
+    block have the block''s branch as parent (schedule.py:335-337). ledger.branch
+    is used whenever no step writes files (schedule.py:131-132). Run branching still
+    requires git.run-branch, and written() always includes home, so a run branch is
+    created (wiring.py:312-313, actions.py:16-24).'
+  - 'Scope is fine: only docs/explanation/branching.md changed. pymarkdownlnt, codespell
+    and check-reference.py (with FAB0_CORE set) pass. The links to ../how-to/choose-git-workflow.md
+    and ../reference/project.md#git resolve.'
+  findings:
+  - check: truth
+    message: 'The reason ''nothing may push to the base branch'' is false since 0.6.1
+      and contradicts line 25, where apply merges into the base branch when git.auto_merge
+      has into: [base] and allow_base: true. Keep D18''s reason but qualify it, for
+      example: the ledger must live in git, and the base branch takes only work that
+      a person or the merge policy accepts.'
+    location: docs/explanation/branching.md:29
+  - check: truth
+    message: 'Minor, and not new in this change: the intro says ''Only the finished
+      run reaches the base branch'', which is false under flat branching. The Flat
+      branching section now contradicts it. Consider limiting it to run branching
+      while editing this paragraph.'
+    location: docs/explanation/branching.md:3
+  details:
+    unmet: []

@@ -1,0 +1,109 @@
+step: write
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T1
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+unit: T1
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: escalate
+summary: 'The brief contradicts a source, so the page can''t meet A5 as written. The
+  brief''s outline step 3, F5 and A5 all say `apply` merges units with a label-decided
+  human gate (with gate `none` and `merge: auto`) into the run branch, or into the
+  base branch under `flat` with `allow_base`. At 41466ad, `merge_unit` in `core:plugins/fab0/lib/fab0_engine/apply.py:202-204`
+  returns without merging when `unit.gate != "none"` and the gate isn''t `merge: auto`.
+  A labelled human gate is a dict, so it falls in that case, and no other code merges
+  it.; So `schedule.py:902-911` marks a labelled unit with a branch as `waiting` with
+  `{gate: merge}`. Then `apply` neither merges it nor opens a pull request for it,
+  because `unit_pull` runs only for the `human`, `gate` and `running` reasons (`apply.py:348-358`).
+  Under `flat` without `allow_base` the 0.6.1 check turns it into `human`, so a person
+  merges its pull request. That part of the page holds. Under `run`, and under `flat`
+  with `into: [base]` and `allow_base: true`, the page says `apply` merges it, and
+  the source doesn''t support that.; `docs/explanation/gates.md:33` says `via: label`
+  is for units without a pull request. That points to label-decided gates with a branch
+  being out of scope rather than merged. A person has to decide between two fixes:
+  change the code (`merge_unit` merges labelled units, a `code` finding for fab0-core),
+  or change the brief (drop label-decided gates from the merge claims in step 3, the
+  settings sentences and A5, or limit them to ledger branches). The writer can''t
+  settle this within T1.; Writer-fixable findings are listed too, so they can go into
+  the next attempt with the decision. Checks pass: pymarkdownlnt and codespell pass,
+  check-reference.py passes against fab0-core at 41466ad, every relative link and
+  anchor resolves, and only the two task files changed.'
+verdict:
+  decision: escalate
+  reasons:
+  - 'The brief contradicts a source, so the page can''t meet A5 as written. The brief''s
+    outline step 3, F5 and A5 all say `apply` merges units with a label-decided human
+    gate (with gate `none` and `merge: auto`) into the run branch, or into the base
+    branch under `flat` with `allow_base`. At 41466ad, `merge_unit` in `core:plugins/fab0/lib/fab0_engine/apply.py:202-204`
+    returns without merging when `unit.gate != "none"` and the gate isn''t `merge:
+    auto`. A labelled human gate is a dict, so it falls in that case, and no other
+    code merges it.'
+  - 'So `schedule.py:902-911` marks a labelled unit with a branch as `waiting` with
+    `{gate: merge}`. Then `apply` neither merges it nor opens a pull request for it,
+    because `unit_pull` runs only for the `human`, `gate` and `running` reasons (`apply.py:348-358`).
+    Under `flat` without `allow_base` the 0.6.1 check turns it into `human`, so a
+    person merges its pull request. That part of the page holds. Under `run`, and
+    under `flat` with `into: [base]` and `allow_base: true`, the page says `apply`
+    merges it, and the source doesn''t support that.'
+  - '`docs/explanation/gates.md:33` says `via: label` is for units without a pull
+    request. That points to label-decided gates with a branch being out of scope rather
+    than merged. A person has to decide between two fixes: change the code (`merge_unit`
+    merges labelled units, a `code` finding for fab0-core), or change the brief (drop
+    label-decided gates from the merge claims in step 3, the settings sentences and
+    A5, or limit them to ledger branches). The writer can''t settle this within T1.'
+  - 'Writer-fixable findings are listed too, so they can go into the next attempt
+    with the decision. Checks pass: pymarkdownlnt and codespell pass, check-reference.py
+    passes against fab0-core at 41466ad, every relative link and anchor resolves,
+    and only the two task files changed.'
+  findings:
+  - check: Truth
+    message: 'The page says `apply` merges units with label-decided human gates into
+      the run branch, but `merge_unit` returns None for any gate other than `none`
+      or `merge: auto` (core:plugins/fab0/lib/fab0_engine/apply.py:202-204@41466ad),
+      so `apply` never merges them.'
+    location: docs/how-to/choose-git-workflow.md:30
+  - check: Truth
+    message: 'The `flat` bullet says that with `into: [base]` and `allow_base: true`,
+      `apply` merges a label-decided unit by pushing to the base branch, but `merge_unit`
+      doesn''t merge such a unit and `unit_pull` doesn''t run for the `merge` reason,
+      so the unit gets no merge and no pull request (apply.py:202-204, 348-358@41466ad).'
+    location: docs/how-to/choose-git-workflow.md:31
+  - check: Truth
+    message: The settings sentence says `apply` merges units with a label-decided
+      gate into the base branch under this block, which the source doesn't support
+      (apply.py:202-204@41466ad).
+    location: docs/how-to/choose-git-workflow.md:63
+  - check: Truth
+    message: 'No source pinned in the brief supports the claim that the base branch
+      ruleset ''must let the fab0 login bypass it''. The linked set up GitHub page
+      (docs/how-to/github-setup.md:52) and github/SKILL.md:37 say the opposite: the
+      ruleset requires a pull request and the run reaches the base branch only through
+      the run''s pull request. So the link sends readers to a page that doesn''t explain
+      the bypass.'
+    location: docs/how-to/choose-git-workflow.md:31
+  - check: Acceptance
+    message: 'For the ledger-branch case, A4 asks what `git.auto_merge` must hold
+      for a `merge: auto` gate to pass `validate`, but the page only says ''`validate`
+      still checks the target'' without naming it: `base` under `flat`, `run` under
+      `run` (wiring.py:552-558@41466ad).'
+    location: docs/how-to/choose-git-workflow.md:32
+  - check: Style
+    message: The `validate` table cuts one message, 'merge auto would merge into the
+      {run|base} branch, which git.auto_merge.into doesn't allow' (wiring.py:557-558),
+      into two code spans that a reader can't search for as one string.
+    location: docs/how-to/choose-git-workflow.md:99
+  details:
+    unmet:
+    - A5
+    - A4
+    blocked_on: 'Brief vs source: whether label-decided human gates with a branch
+      are merged by apply (code fix in fab0-core) or not (brief, A5 and the how-to
+      change).'

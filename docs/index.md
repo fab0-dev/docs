@@ -28,6 +28,7 @@ These pages describe the latest release of the `fab0` plugin.
 - [Build your first factory](how-to/build-your-first-factory.md)
 - [Use an example](how-to/use-an-example.md)
 - [Set up GitHub](how-to/github-setup.md)
+- [Choose how a pipeline uses git](how-to/choose-git-workflow.md)
 
 ## Reference
 

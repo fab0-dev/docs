@@ -1,0 +1,64 @@
+step: write
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T2
+base:
+  branch: fab0/8/base
+  sha: 1a45b8c249ed4ee834da1c6bf09779e89f855735
+unit: T2
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: approve
+summary: 'Scope: only docs/explanation/branching.md changed, which is the file T2
+  owns.; A8 is met. ''Runs that write no files'' is now its own section. It says the
+  ledger branch is used whatever the branching and does not belong to `flat`, and
+  that `run` branching still needs the run branch. This matches schedule.py:131-132
+  and wiring.py:312-319 at 41466ad. The page links the how-to from the intro and from
+  ''Flat branching''.; A10 is met. ''Flat branching'' says a person merges each unit
+  into the base branch unless `git.auto_merge` has `into: [base]` with `allow_base:
+  true`, and that `apply` then merges gate `none`, label-decided and `merge: auto`
+  units. It gives the reason: the base branch is the project''s. It also says units
+  inside a gated block merge into the block''s branch. This matches schedule.py:902-908,
+  wiring.py:277-280 and schedule.py:335-337 at 41466ad, and P10 in product CLAUDE.md@b5816a5.;
+  The reworded ledger reason (the record must live in git, and the base branch takes
+  only work that a person or the merge policy accepts) is consistent with D18 and
+  with 0.6.1''s base_allowed. The intro''s ''Under the default, run branching'' no
+  longer contradicts the flat section.; Checks pass: pymarkdownlnt, codespell, and
+  check-reference.py with FAB0_CORE set. ../how-to/choose-git-workflow.md exists,
+  and the anchor ../reference/project.md#git resolves to the ''## `git`'' heading.'
+verdict:
+  decision: approve
+  reasons:
+  - 'Scope: only docs/explanation/branching.md changed, which is the file T2 owns.'
+  - A8 is met. 'Runs that write no files' is now its own section. It says the ledger
+    branch is used whatever the branching and does not belong to `flat`, and that
+    `run` branching still needs the run branch. This matches schedule.py:131-132 and
+    wiring.py:312-319 at 41466ad. The page links the how-to from the intro and from
+    'Flat branching'.
+  - 'A10 is met. ''Flat branching'' says a person merges each unit into the base branch
+    unless `git.auto_merge` has `into: [base]` with `allow_base: true`, and that `apply`
+    then merges gate `none`, label-decided and `merge: auto` units. It gives the reason:
+    the base branch is the project''s. It also says units inside a gated block merge
+    into the block''s branch. This matches schedule.py:902-908, wiring.py:277-280
+    and schedule.py:335-337 at 41466ad, and P10 in product CLAUDE.md@b5816a5.'
+  - The reworded ledger reason (the record must live in git, and the base branch takes
+    only work that a person or the merge policy accepts) is consistent with D18 and
+    with 0.6.1's base_allowed. The intro's 'Under the default, run branching' no longer
+    contradicts the flat section.
+  - 'Checks pass: pymarkdownlnt, codespell, and check-reference.py with FAB0_CORE
+    set. ../how-to/choose-git-workflow.md exists, and the anchor ../reference/project.md#git
+    resolves to the ''## `git`'' heading.'
+  findings:
+  - check: Truth
+    message: 'Minor, not blocking: the flat section''s ''A person merges each unit
+      into the base branch'' doesn''t hold for a pipeline with a ledger branch, where
+      nothing merges. The next section covers that case, but a forward reference such
+      as ''for runs that write files'' would make the scope clear.'
+    location: docs/explanation/branching.md:25
+  details:
+    unmet: []
