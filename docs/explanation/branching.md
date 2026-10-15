@@ -1,6 +1,6 @@
 # Branches and merges
 
-A run works on its own branch. Each unit works on a sub-branch of it, in its own worktree, so units run in parallel without touching each other. Only the finished run reaches the base branch. This page explains how. The [project reference](../reference/project.md#git) lists the settings, and [choose how a pipeline uses git](../how-to/choose-git-workflow.md) helps you pick them.
+A run works on its own branch. Each unit works on a sub-branch of it, in its own worktree, so units run in parallel without touching each other. Under the default, run branching, only the finished run reaches the base branch. This page explains how. The [project reference](../reference/project.md#git) lists the settings, and [choose how a pipeline uses git](../how-to/choose-git-workflow.md) helps you pick them.
 
 ## Run branching (default)
 
@@ -26,7 +26,7 @@ A person merges each unit into the base branch, unless `git.auto_merge` allows t
 
 ## Runs that write no files
 
-A pipeline whose steps write no files, such as one that works only in the tracker, opens no pull requests at all. Whatever its branching, it keeps its ledger on `ledger.branch`, which `apply` pushes and nothing merges, because the record must live in git and nothing may push to the base branch. The ledger branch belongs to this case, not to `flat`: under `run` branching such a pipeline still needs the run branch.
+A pipeline whose steps write no files, such as one that works only in the tracker, opens no pull requests at all. Whatever its branching, it keeps its ledger on `ledger.branch`, which `apply` pushes and nothing merges, because the record must live in git, and the base branch takes only work that a person or the merge policy accepts. The ledger branch belongs to this case, not to `flat`: under `run` branching such a pipeline still needs the run branch.
 
 ## Several repositories
 
