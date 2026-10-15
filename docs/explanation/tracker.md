@@ -31,7 +31,7 @@ Each write checks first, so `apply` can run as often as you like. A person's own
 
 ## One account for people and agents
 
-The person running fab0 and the agents use the same GitHub login. So GitHub sees every pull request as the person's own, and lets them leave only a Comment review on it. fab0 counts Comment reviews as feedback, and a person's conversation comments on the pull request too. The comments fab0 itself posts don't count. A separate identity for agents isn't built.
+The person running fab0 and the agents use the same GitHub login. So GitHub sees every pull request as the person's own, and lets them leave only a Comment review on it. fab0 counts Comment reviews as feedback, and a person's conversation comments on the pull request too. The comments fab0 itself posts don't count. Once the unit's pull request is merged, its comments stop counting, as its reviews do. A separate identity for agents isn't built.
 
 ## The board
 
