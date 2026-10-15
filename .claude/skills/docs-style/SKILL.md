@@ -11,7 +11,7 @@ The fab0 docs describe fab0 as it is built, and say plainly what is not built ye
 
 - **Behaviour and formats:** the `core` repository: `plugins/fab0/schemas/*.json`, the engine in `plugins/fab0/lib/fab0_engine/`, and the skills in `plugins/fab0/skills/`.
 - **Examples:** the `examples` repository: each example's `.fab0/`, agents, skills and README.
-- **Principles, decisions and what is planned:** the `product` repository: `CLAUDE.md`, `ROADMAP.md`, and `REFACTOR.md` while it exists.
+- **Principles, decisions and what is planned:** the `product` repository: `CLAUDE.md`, `ROADMAP.md` and `DECISIONS.md`.
 
 When a page and a source disagree, the page is wrong. Never describe behaviour you haven't found in a source. `scripts/check-reference.py` also checks the reference pages field by field against the schemas, both ways.
 
