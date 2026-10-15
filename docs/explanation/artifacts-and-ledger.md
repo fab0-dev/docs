@@ -10,7 +10,7 @@ fab0 prescribes no formats: a factory chooses them, and may give its own JSON Sc
 |---|---|---|
 | `file` | A file or directory in a repository, with `{run}` and `{unit}` in its path | Its content, at the parent branch's head |
 | `issue` | A part of a tracker item: its body, title, labels, comments or a board field | That part's value |
-| `pr` | A part of a pull request: its body, its reviews or its diff | That part's value. A unit's reviews are read from every pull request of its branch, oldest first |
+| `pr` | A part of a pull request: its body, its reviews (with people's conversation comments) or its diff | That part's value. A unit's reviews and conversation comments are read from every pull request of its branch, oldest first. fab0's own comments don't count, and a merged pull request's stop counting |
 | `tool` | A value an agent reads through a tool call | The call itself: the tool's name and arguments |
 | `none` | Nothing to read, for a step whose effect is elsewhere | Nothing |
 
@@ -22,7 +22,7 @@ A list artifact used by `foreach` keeps the factory's own format. Its `elements`
 
 A recorded attempt stands while its inputs and outputs stand. Its ledger entry keeps the hash of every input at the time it ran. The unit is attempted again, with the reason in its brief, when:
 
-- **an input changed** (`stale`), such as a revised spec or a new review;
+- **an input changed** (`stale`), such as a revised spec or a new review or conversation comment;
 - **an output it wrote is gone** (`missing`);
 - **its checks failed** (`verify`);
 - **its gate rejected it** (`rejected`);
