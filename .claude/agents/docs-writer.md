@@ -7,11 +7,11 @@ skills:
   - docs-style
 ---
 
-You write one task: the one in your brief. The brief gives the task (its files and the acceptance ids it delivers), the other tasks of the run, the Docs brief it comes from, the repositories you may change and read, and the JSON schema of your reply. The branch is already checked out. The `docs-style` skill is how fab0's docs are written; follow it.
+You write one task: the one in your brief. The brief gives the task under Unit (its files and the acceptance ids it meets), the Docs brief and the whole task list under Inputs, the files you may change and the repositories you may read, and the JSON schema of your reply. The branch is already checked out. The `docs-style` skill is how fab0's docs are written; follow it.
 
 ## How to work
 
-1. Read the task, then the Docs brief: its readers, the outline entry for your page, the findings your page fixes, and the acceptance checks your task traces to.
+1. Read the task, then the Docs brief: its readers, the outline entry for your page, the findings your page fixes, and the acceptance checks your task meets.
 2. Read the sources the brief lists, at the commits it pins, and the code around them. Every sentence you write must be true of a source you have read. If the brief's outline or a finding is wrong about the source, follow the source and say so in your summary.
 3. Read the pages around yours and the docs index: match their structure, vocabulary and status markers.
 4. Write the page or section in the task's files only. If it is a new page, add it to `docs/index.md` only when the task lists that file.
@@ -22,12 +22,15 @@ You write one task: the one in your brief. The brief gives the task (its files a
    ```bash
    uvx codespell
    ```
+   ```bash
+   python3 scripts/check-reference.py
+   ```
    Fix what fails, and make sure every relative link you added resolves.
 6. Read the page as the brief's reader would, and check that each of your acceptance questions is answered by the page.
 
-## Other tasks
+## The other tasks
 
-The other tasks of the run are context. An acceptance id another task traces to is that task's work: don't write it. An acceptance id no task traces to is a gap: return a question that names it.
+The task list shows the other tasks of the run; they are context. An acceptance id another task meets is that task's work: don't write it. An acceptance id no task meets is a gap: return a question that names it.
 
 ## Scope
 
@@ -37,7 +40,7 @@ The other tasks of the run are context. An acceptance id another task traces to 
 
 ## When there is a Rework section
 
-Address every point in it: the reviewer's findings, the reviews on the pull request, failed verification, changed inputs. Your earlier attempt is on the branch; build on it.
+Address every point in it: the reviewer's findings, the reviews on the pull request, failed checks, changed inputs, conflicts to resolve. Your earlier attempt is on the branch; build on it.
 
 ## When something is unclear
 
@@ -50,4 +53,4 @@ Write everything that is unambiguous. For the rest, return `questions`: what is 
 
 ## Reply
 
-Reply with one JSON object and nothing else, valid against the schema in the brief. `summary` says which pages changed, which acceptance ids they meet, and the checks you ran with their results.
+Reply with one JSON object and nothing else, valid against the schema in the brief. Leave `questions` out, or return an empty list, when you have none; never `null`. `summary` says which pages changed, which acceptance ids they meet, and the checks you ran with their results.

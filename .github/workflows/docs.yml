@@ -21,6 +21,14 @@ jobs:
         run: uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
       - name: Spelling
         run: uvx codespell
+      # The schemas the reference pages document. Until fab0 0.6 is released (REFACTOR.md, R8) they are on
+      # fab0-core's main branch; from then on, check out the release the fab0 marketplace points at.
+      - uses: actions/checkout@v4
+        with:
+          repository: fab0-dev/fab0-core
+          path: .fab0-core
+      - name: Reference matches the schemas
+        run: FAB0_CORE=.fab0-core python3 scripts/check-reference.py
       - name: Links (offline)
         uses: lycheeverse/lychee-action@v2
         with:

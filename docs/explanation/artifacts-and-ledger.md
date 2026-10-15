@@ -1,69 +1,51 @@
 # Artifacts and the ledger
 
-Stages pass **artifacts** to each other. The **ledger** records every attempt that produced them. Both live in git.
+Steps pass work on through **artifacts**, and every attempt is recorded in the **ledger**. Together they let the engine tell whether a unit's work still stands. The [artifact reference](../reference/artifact.md) and the [ledger reference](../reference/ledger.md) list the fields.
 
-## Artifact types
+## Artifact kinds
 
-An artifact type says what a thing is, where it lives, how it is checked and how long it is kept. Stages refer to artifacts by name.
+fab0 prescribes no formats: a factory chooses them, and may give its own JSON Schema. What fab0 needs to know is where an artifact lives and how to hash it.
 
-```yaml
-# .fab0/artifacts/tasks.yaml
-artifact: tasks
-format: yaml
-location: {repo: home, path: "work/{run}/tasks.yaml"}
-schema: fab0:schemas/tasks.json   # yaml and json only; validated by the resolver
-keep: run                         # removed from the base branch by the deliver pull request
-```
-
-```yaml
-# .fab0/artifacts/intent.yaml
-artifact: intent
-format: markdown
-location: {github: issue-body}    # read from GitHub, never written by a stage
-```
-
-A location is either a path in a repository or a GitHub source. The path can use `{run}`, and `{task}` inside a `foreach`. Every field is in the [wiring reference](../reference/wiring.md).
-
-Structured formats (YAML, JSON) are preferred wherever a tool can check them (P5). `foreach` reads only YAML or JSON artifacts for that reason.
-
-### Core artifact types
-
-| Type | Format | Contents |
+| Kind | What it is | Hashed by |
 |---|---|---|
-| `intent` | Markdown, from the issue body | What the item asks for |
-| `spec` | Markdown | The spec of one run |
-| `tasks` | YAML, schema `fab0:schemas/tasks.json` | Per task: `id`, `title`, `repo`, `files`, `depends_on`, `traces_to` |
-| `review` | JSON, schema `review.json` | An agent gate's `decision`, `reasons`, `findings` and `unmet` scenarios |
+| `file` | A file or directory in a repository, with `{run}` and `{unit}` in its path | Its content, at the parent branch's head |
+| `issue` | A part of a tracker item: its body, title, labels, comments or a board field | That part's value |
+| `pr` | A part of a pull request: its body, its reviews or its diff | That part's value. A unit's reviews are read from every pull request of its branch, oldest first |
+| `tool` | A value an agent reads through a tool call | The call itself: the tool's name and arguments |
+| `none` | Nothing to read, for a step whose effect is elsewhere | Nothing |
 
-Every other type is declared in the project when a stage that produces it is added. The plugin that provides the agent documents the format in its skill, and may ship a JSON Schema for the project to point to.
+The engine can't call tools, so an agent reads a `tool` artifact itself, and a change in the outside value doesn't make work stale. `foreach` lists and `when` conditions read file artifacts only.
 
-A binary artifact too large for a normal commit is tracked with Git LFS through the repository's `.gitattributes`. fab0 needs no setting for it.
+A list artifact used by `foreach` keeps the factory's own format. Its `elements` say which field of an element is its id, title, repository, `after` and paths.
+
+## When work stands, and when it doesn't
+
+A recorded attempt stands while its inputs and outputs stand. Its ledger entry keeps the hash of every input at the time it ran. The unit is attempted again, with the reason in its brief, when:
+
+- **an input changed** (`stale`), such as a revised spec or a new review;
+- **an output it wrote is gone** (`missing`);
+- **its checks failed** (`verify`);
+- **its gate rejected it** (`rejected`);
+- **its branch conflicts with its parent** (`conflict`), or **its required checks fail** (`checks`).
+
+A person's edit of an output isn't a reason: it is reviewed with the rest, and anything that reads the output goes stale.
+
+## Checking outputs
+
+When a unit is recorded, its outputs are checked, cheapest first:
+
+1. **The reply** matches its schema: fab0's base with `summary`, plus `questions` and the step's own `data` schema when the step asks for them. A reply that doesn't is refused, and nothing is recorded; the session gives the agent one more try.
+2. **Each output file** exists, parses as its `format` (`yaml` or `json`), and matches its `schema`.
+3. **The artifact's own checks** pass: required Markdown `sections`, a `lint` command, or a `script`.
+
+A failed output check is recorded, and the unit goes back to its agent with the errors. When the checks fail more times in a row than the gate's `retry` (default 2), the unit is blocked as `failed` until an input changes. Writes outside the unit's claims are findings too. A change in a repository the unit may not write refuses the record, because it can't be told apart from a person's own work there.
+
+## Keeping or removing
+
+An artifact is `durable` by default and stays in the result. A working file, such as a task list, is `keep: run`: `git.remove-run-artifacts` removes it at the run's end. A per-element file, whose path has `{unit}` or whose repository is the element's, stays. Work that read it still stands, because the engine reads it as it was before its removal.
 
 ## The ledger
 
-The ledger is the directory `work/{run}/ledger/` in the repository where a stage ran. It holds one file per agent-stage attempt, named `<stage>[-<task>]-<attempt>.yaml`, for example `spec-1.yaml` or `implement-T1-2.yaml`.
+The ledger is a folder of YAML files, one per attempt and one per auto gate's decision, under `ledger.path` (for example `work/{run}/ledger`). An entry records who ran the attempt, on which branch, at which commit of its parent, the hashes of its inputs and outputs, its checks, its claims, its gate, and its reply.
 
-```yaml
-# work/412/ledger/spec-1.yaml
-stage: spec
-attempt: 1
-actor: po-user
-model: opus
-branch: spec/412-booking-extension
-inputs:  {intent: "sha256:9f3c…"}
-outputs: {spec: "sha256:41aa…", tasks: "sha256:c07e…"}
-verify:  {spec: pass, tasks: pass}
-gate:    {type: human}
-summary: The spec has six scenarios for …
-```
-
-- **Committed with the work.** Entries are committed with the stage's artifacts on its branch and merged with its pull request.
-- **No collisions.** Names can't collide across parallel branches, and order comes from git history.
-- **Append-only.** Only the resolver writes the ledger, and an existing entry is never edited.
-- **Agent gates.** A gate's decision goes in a file of its own beside the attempt it judged: `<stage>[-<task>]-<attempt>-gate.yaml`, with the decision and the review.
-- **Human gates.** A merge is not recorded. GitHub is the truth for it (P3). The resolver reads it as "the attempt's entry is on the base branch".
-- **Actions.** Actions write no ledger entries. Their results are GitHub facts (sub-issues, assignees, closed issues) that the resolver reads back. Every commit therefore stays inside the pull request flow, and fab0 never pushes to the base branch.
-
-Because the ledger travels in git, anyone can pick a run up on any machine. The ledger also replaces metadata on every artifact, which would only work for formats that have a header.
-
-The fields of an entry are in the [ledger reference](../reference/ledger.md).
+Entries are written on the unit's branch and travel with the work, through merges, to the run branch and the base. So the ledger is in git, and the base branch holds the history of every run that reached it. A unit is done when its entry is on the branch it targets. The ledger is append-only: an attempt is never rewritten.

@@ -1,70 +1,56 @@
-# Commands reference
+# Commands
 
-fab0 has two commands for people, both skills of the core plugin, and one script that they call.
+The `fab0` plugin adds the engine, `fab0-resolve`, to the Bash `PATH` of every Claude Code session, and two slash commands. It needs [`uv`](https://docs.astral.sh/uv/), and an authenticated [`gh`](https://cli.github.com/).
 
-## `/fab0:run <run> [--task T] [--take] [--profile P]`
+## Slash commands
 
-Runs a pipeline for one item until it needs a person, is done, or is blocked. You type it in a Claude Code session, or pass it to `claude -p`. A model never invokes it on its own.
-
-| Argument | Meaning |
+| Command | What it does |
 |---|---|
-| `<run>` | The run id: the item's issue number in the home repo |
-| `--task T` | Work only on task `T`, for example `T2` |
-| `--take` | Claim task `T` if someone else is assigned. It reassigns the task issue to you first |
-| `--profile P` | Apply profile `P` from `fab0.yaml` |
+| `/fab0:run <run> [--pipeline P] [--profile P] [--unit U]` | Runs the pipeline for one run until it needs a person, is blocked or is done: `apply`, `next`, the hand-outs, `record`, and again. See [running a pipeline](../explanation/execution.md) |
+| `/fab0:inbox [--as USER]` | Shows every open run, what waits on you, what anyone can run, and what is blocked. Read-only |
 
-Without `--task`, it works through the tasks you may run, one after another.
-
-**What it does on GitHub:**
-
-- pushes stage branches;
-- opens and updates stage pull requests;
-- posts question and handoff comments;
-- creates and edits task sub-issues;
-- updates the board fields.
-
-**What it never does:** merge, push to the base branch, or force-push.
-
-**At the end it reports:**
-
-- each stage, task, attempt and model, and whether the attempt was verified;
-- what it opened or updated on GitHub;
-- what the run waits for, and on whom.
-
-Commits on a stage branch have the subject `<stage>[ <task>] attempt <n> (fab0 <version>): <summary>`, so a pull request's commits show which release ran each attempt.
-
-## `/fab0:inbox [--as USER]`
-
-Read-only. For every open item of every pipeline in the project it shows:
-
-- **Ready for you:** the exact `/fab0:run` command for each stage or task you may run.
-- **Pending actions:** actions anyone may run.
-- **Waiting on others,** with the reason.
-- **Blocked,** with the reason.
-- **Done, issue still open.**
-
-It never runs what it suggests. `--as` shows another user's view.
+The plugin also has a `fab0:github` skill, which checks and prepares GitHub for a factory. See [set up GitHub](../how-to/github-setup.md).
 
 ## `fab0-resolve`
 
-The resolver, on the `PATH` through the plugin's `bin/`. Each command prints one JSON object. You normally call only `validate`; the skills call the rest.
+Every command prints one JSON object.
 
-| Command | Does |
+| Command | What it does |
 |---|---|
-| `fab0-resolve --version` | Prints the fab0 release |
-| `fab0-resolve validate [--profile P]` | Checks `.fab0/`. Prints `"ok": true`, or the errors by file |
-| `fab0-resolve next <run> [--task T] [--profile P] [--as USER]` | What the run needs next: `stage`, `gate`, `action`, `tasks`, `wait`, `done` or `blocked`, with the brief, model and branch for an agent call |
-| `fab0-resolve record <run> <stage> [--task T] [--gate] --return <file>` | Records the result of what `next` handed out. Validates the return, verifies outputs, checks write scope, writes the ledger entry |
-| `fab0-resolve inbox [--as USER] [--profile P]` | The data behind `/fab0:inbox` |
+| `fab0-resolve validate` | Checks the project's `.fab0/` wiring. Prints the pipelines, steps, artifacts, and the workspace: each repository's local path and whether it is there |
+| `fab0-resolve status <run>` | Every unit of the run and its state. Read-only |
+| `fab0-resolve next <run>` | The same, and a hand-out for every unit that is ready or running and every auto gate that is due. Claims each unit it hands out |
+| `fab0-resolve record <run> <unit>` | Checks a handed-out unit's result and writes its ledger entry in the unit's checkout |
+| `fab0-resolve apply <run>` | Performs what is due: actions, merges, pull requests, comments, signals. Writes to git and the tracker |
+| `fab0-resolve inbox` | Every open run of the project, and what it needs from whom. Read-only |
+| `fab0-resolve --version` | The fab0 release of the engine |
 
-Every command takes `--project <path>` to name the home repo. By default the home repo is found from the current directory.
+### Options
 
-| Exit code | Meaning |
+| Option | Commands | Meaning |
+|---|---|---|
+| `--project DIR` | all | The home repo. Default: found from the current directory; from inside a worktree, its main checkout |
+| `--profile NAME` | all | A profile from `fab0.yaml` to apply |
+| `--pipeline NAME` | `status`, `next`, `record`, `apply` | The pipeline. Default: the project's only pipeline, else the one whose trigger the run matches |
+| `--as USER` | all but `validate` | Who is running. Default: the tracker login |
+| `--unit UNIT` | `next`, `apply` | Only this unit |
+| `--return FILE` | `record` | The agent's or tool's JSON reply |
+| `--exit CODE` | `record` | A command's exit code |
+| `--gate` | `record` | Record the unit's auto gate: its verdict, or `--exit` for a command gate |
+| `--output FILE` | `record` | A command gate's output, kept as the finding when it fails |
+
+### Exit codes
+
+| Code | Meaning |
 |---|---|
-| 0 | OK |
-| 1 | Error |
-| 2 | Usage |
-| 3 | Invalid wiring |
-| 4 | Refused, for example a write outside the stage's scope |
+| 0 | Done |
+| 1 | An error, for example a failing `git` or `gh` call |
+| 2 | A usage error, for example an unknown pipeline |
+| 3 | The wiring is invalid; `errors` lists each problem with its file |
+| 4 | Refused, for example a reply that doesn't match its schema, or a unit that wasn't handed out |
 
-`FAB0_GH_FAKE=<file.json>` makes the resolver read GitHub facts from a file instead of `gh`. The tests use it.
+### Environment
+
+| Variable | Meaning |
+|---|---|
+| `FAB0_GH_FAKE` | A JSON file to read and write tracker facts in, instead of GitHub. For tests |

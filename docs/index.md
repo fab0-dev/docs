@@ -1,46 +1,50 @@
 # fab0 documentation
 
-> **Being rewritten.** These pages describe fab0 0.5, a delivery factory. fab0 is being rebuilt as a toolkit for building factories, and the pages are rewritten in the refactor's step R7. The plan and the target model are in [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md).
+fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-fab0 runs software delivery as pipelines of Claude Code agents, wired in a few short YAML files and carried on GitHub.
-
-These pages describe fab0 as it is in the latest release of the core plugin. What is designed but not built yet is marked.
+> **fab0 0.6.** These pages describe fab0 0.6, the toolkit. It is released at the end of the refactor described in [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md); until then, the installed release is 0.5, a delivery factory these pages don't describe.
 
 ## Status markers
 
 | Marker | Meaning |
 |---|---|
-| (none) | Built and in the latest release |
-| **Planned (step X)** | Designed, not built. The step is in the [roadmap](https://github.com/fab0-dev/fab0/blob/main/ROADMAP.md) |
-| **Since 0.x** | Added in that release, for features newer than the first public one |
+| (none) | Built |
+| **Planned** | Designed and accepted by `validate` where it says so, but not built. The page says what exists today |
 
 ## Explanation: how fab0 works and why
 
-- [What fab0 is](explanation/overview.md): constraints, principles, glossary
-- [How a run executes](explanation/execution.md): the orchestrator, the resolver, the next-stage rule
-- [Artifacts and the ledger](explanation/artifacts-and-ledger.md)
-- [Verification](explanation/verification.md): the verification ladder and write scope
-- [Gates and handoff](explanation/gates-and-handoff.md): how people take turns, and a Story from start to done
-- [Several repositories and models](explanation/multi-repo.md)
-- [Nesting pipelines](explanation/nesting.md) (Planned)
-- [Decisions](explanation/decisions.md): open questions and rejected alternatives
+- [What fab0 is](explanation/overview.md): building blocks, principles, glossary
+- [Pipelines and steps](explanation/pipelines.md): triggers, executors, operators, units, lifecycle actions
+- [Gates](explanation/gates.md): `none`, `auto` and `human`, questions, and who merges
+- [Branches and merges](explanation/branching.md): run branches, claims, conflicts
+- [Dependencies and blocking](explanation/dependencies.md): unit states, and the tracker's relations
+- [Artifacts and the ledger](explanation/artifacts-and-ledger.md): kinds, staleness, checks, the record
+- [Running a pipeline](explanation/execution.md): the engine, the session, and the loop
+- [The tracker](explanation/tracker.md): what fab0 reads from GitHub, and what it writes
+- [Examples](explanation/examples.md): ready-made factories, and how to take one
 
 ## How-to guides
 
-- [Set up a project](how-to/set-up-a-project.md)
+- [Build your first factory](how-to/build-your-first-factory.md)
+- [Use an example](how-to/use-an-example.md)
 - [Set up GitHub](how-to/github-setup.md)
 
 ## Reference
 
-- [Wiring](reference/wiring.md): `fab0.yaml`, artifact types, stages, pipelines
+- [Project file](reference/project.md): `.fab0/fab0.yaml`
+- [Pipeline](reference/pipeline.md): `.fab0/pipelines/<name>.yaml`, operators, gates, conditions
+- [Step](reference/step.md): `.fab0/steps/<name>.yaml`
+- [Artifact](reference/artifact.md): `.fab0/artifacts/<name>.yaml`
+- [Returns and verdicts](reference/returns-and-verdicts.md): what agents reply
+- [Ledger entry](reference/ledger.md)
+- [Actions](reference/actions.md): the catalogue
 - [Commands](reference/commands.md): `/fab0:run`, `/fab0:inbox`, `fab0-resolve`
-- [Ledger](reference/ledger.md)
 
 ## Repositories
 
 | Repository | Contents |
 |---|---|
-| [`fab0-dev/fab0`](https://github.com/fab0-dev/fab0) | The product's home repo: rules, roadmap, fab0's own wiring and specs |
-| [`fab0-dev/fab0-core`](https://github.com/fab0-dev/fab0-core) | The `fab0` marketplace and core plugin: resolver, schemas, agents, skills |
-| [`fab0-dev/fab0-recipes`](https://github.com/fab0-dev/fab0-recipes) | Ready-made `.fab0/` setups to copy into a project |
-| [`fab0-dev/docs`](https://github.com/fab0-dev/docs) | These docs |
+| [`fab0-dev/fab0`](https://github.com/fab0-dev/fab0) | The product's home repo: its rules, roadmap and principles |
+| [`fab0-dev/fab0-core`](https://github.com/fab0-dev/fab0-core) | The `fab0` marketplace and plugin: the engine, the schemas, `/fab0:run` and `/fab0:inbox` |
+| [`fab0-dev/fab0-examples`](https://github.com/fab0-dev/fab0-examples) | Example factories to copy, with their agents and skills |
+| [`fab0-dev/docs`](https://github.com/fab0-dev/docs) | These docs, and the factory that maintains them |

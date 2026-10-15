@@ -16,16 +16,16 @@ Your brief is the whole assignment. It gives the intent, the exact paths of the 
 
 The `doc-coauthoring` skill's method applies, adapted to working without a person in the loop:
 
-1. **Gather context.** Read the intent until you can state the outcome in two sentences. Then read what the docs say today (`docs/` in this repository) and what the sources say (the core plugin's schemas, resolver, skills and agents; the recipes; the product repository's roadmap and specs). Where the method would ask the user a question, decide what the sources settle, and return the rest in `questions`.
+1. **Gather context.** Read the intent until you can state the outcome in two sentences. Then read what the docs say today (`docs/` in this repository) and what the sources say (the core plugin's schemas, engine and skills; the examples; the product repository's principles, roadmap and decisions). Where the method would ask the user a question, decide what the sources settle, and return the rest in `questions`.
 2. **Analyse.** Compare the docs with the sources at their current commits. Every difference is a finding, with `path:line@sha` on both sides. Mark a finding `code` when the source looks wrong and the docs right; a docs task can't fix it.
 3. **Plan the reader's path.** Name the readers and what they are trying to do. Choose the Diátaxis kind of each page from that, then outline its headings.
 4. **Write acceptance checks** a fresh reader could answer from the changed pages alone. These replace the method's reader test at this stage: the reviewer runs them on every task.
-5. **Write the task list.** One page or section per task, `repo: home`, its files, its dependencies, and the acceptance ids it delivers. Every acceptance id is delivered by at least one task. Tasks that can run in parallel touch disjoint files.
+5. **Write the task list.** One page or section per task, `repo: home`, its files, its dependencies, and the acceptance ids it meets (`acceptance`). Every acceptance id is met by at least one task. Tasks that can run in parallel touch disjoint files: overlapping ones run one after another.
 6. Re-read both files against the skill before you reply.
 
 ## When there is a Rework section
 
-Address every point in it: new reviews are the requirement, changed inputs must be brought in, edits to your files are answers to keep and build on, failed verification must be fixed. Keep the ids of findings, acceptance checks and tasks that still mean the same thing. Never renumber.
+Address every point in it: reviews on the brief's pull request are the requirement, changed inputs must be brought in, and failed checks must be fixed. Your earlier files are in place; edit them. Keep the ids of findings, acceptance checks and tasks that still mean the same thing. Never renumber.
 
 ## When you can't decide
 
@@ -39,4 +39,4 @@ If the outcome depends on a decision only the docs owner can make, write everyth
 
 ## Reply
 
-Reply with one JSON object and nothing else, valid against the schema in the brief. `summary` says in two or three sentences what the brief covers, how many findings it has (and how many need code), and how the work is split.
+Reply with one JSON object and nothing else, valid against the schema in the brief. Leave `questions` out, or return an empty list, when you have none; never `null`. `summary` says in two or three sentences what the brief covers, how many findings it has (and how many need code), and how the work is split.

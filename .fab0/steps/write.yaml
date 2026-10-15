@@ -1,0 +1,9 @@
+step: write
+agent: docs-writer
+model: balanced
+skills: [docs-style]
+inputs: [brief, tasks, unit, reviews]
+repos: {write: [unit.repo], read: [all]}
+paths: unit.paths
+return: {questions: optional}
+owner: repo-owner

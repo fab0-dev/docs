@@ -1,0 +1,28 @@
+# The docs factory: an issue of type Docs in fab0-dev/docs becomes a brief, then pages written and reviewed
+# by agents and merged into the run branch; the docs owner merges the run into main.
+schema: 2
+repos:
+  home:     {path: ., github: fab0-dev/docs, owner: docs-owner}
+  product:  {path: ../fab0, github: fab0-dev/fab0, owner: product-owner}           # read: principles, roadmap
+  core:     {path: ../fab0-core, github: fab0-dev/fab0-core, owner: developer}      # read: schemas, engine, skills
+  examples: {path: ../fab0-examples, github: fab0-dev/fab0-examples, owner: developer}
+people:
+  docs-owner:    {github: [eugenefurs]}   # approves briefs; merges the run into main
+  product-owner: {github: [eugenefurs]}
+  developer:     {github: [eugenefurs]}
+tracker:
+  kind: github
+  owner: fab0-dev
+  project: 2
+  fields: {signal: Waiting on}
+git:
+  base: main
+  branching: run
+  auto_merge: {into: [run]}
+parallel: {max: 3, cross_run: warn}
+ledger: {path: "work/{run}/ledger"}
+models:
+  claude-code: {deep: opus, balanced: sonnet, fast: haiku}
+profiles:
+  cheap: {models: {claude-code: {deep: sonnet}}}
+pipelines: [docs]

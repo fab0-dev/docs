@@ -1,59 +1,57 @@
 # What fab0 is
 
-fab0 runs software delivery as pipelines of Claude Code agents. A pipeline is wired in a few short YAML files in the project, and its progress is carried on GitHub.
+fab0 is a toolkit for building and operating software factories. A **factory** is a set of pipelines that turn a work item into a result: a Story into merged code, a bug report into a triaged issue, a Docs issue into published pages. fab0 gives you the parts to build one, and the engine that runs it. It isn't a factory itself.
 
-This page gives the constraints fab0 is built under, the principles that follow from them, and the words the rest of the docs use.
+## Building blocks
 
-## Constraints
+A factory lives in a project's `.fab0/` directory, as short YAML files:
 
-- **Claude Code is the harness.** There are no containers, no fab0 command-line tool and no hosted runner. A pipeline runs inside a Claude Code session, interactive or headless (`claude -p`).
-- **A factory is composed from stages declared in YAML.**
-- **Stages exchange typed artifacts,** not only Markdown. Which artifact types exist is configuration.
-- **GitHub and GitHub Projects show and carry the workflow.**
-- **Verification uses what already exists** (schemas, linters, the project's tests, a review agent) before anything written for fab0.
-- **Only Claude models for now,** but nothing in the YAML may depend on that.
+| Block | File | What it is |
+|---|---|---|
+| Project | `.fab0/fab0.yaml` | The repositories, the people and their roles, the tracker, the git policy, the model classes and the pipelines |
+| Pipeline | `.fab0/pipelines/<name>.yaml` | What starts a run, the actions at its start and end, and a tree of steps |
+| Step | `.fab0/steps/<name>.yaml`, or inline in a pipeline | One piece of work, done by an agent, an action, a command or a tool |
+| Artifact | `.fab0/artifacts/<name>.yaml` | Something steps read and write: a file, a part of an issue or a pull request, a tool's value |
 
-fab0 relies on these Claude Code facts:
+Around the steps are the **operators**: a sequence, `foreach` over a list, `parallel` branches, and `when` for a condition. Every transition has a **gate**: `none`, `auto` or `human`. See [pipelines and steps](pipelines.md) and [gates](gates.md).
 
-- The Agent tool takes a `model` per call, which overrides the agent file. A subagent starts with a fresh context and returns one message.
-- Files in a plugin's `bin/` directory are on the Bash `PATH`. One plugin can't find another plugin's install directory.
-- Plugin subagents ignore `permissionMode`, `hooks` and `mcpServers`. The project's `.claude/settings.json` permission rules also apply to subagents.
-- Headless mode supports `--permission-mode dontAsk`, `--max-budget-usd`, `--output-format json` and `--add-dir`.
+The engine, `fab0-resolve`, reads these files at run time. Nothing is compiled. It works out which work is due, hands it to a Claude Code session, checks what comes back, and performs every write to git and the tracker that can be done exactly. See [running a pipeline](execution.md).
 
 ## Principles
 
-Each principle has a reason. A principle without one would be a preference.
+fab0's design follows a few principles. Each has a reason.
 
-- **P1. Plugins carry behaviour; the project carries wiring.** Agents and skills come from ordinary Claude Code plugins, from any marketplace. Stages, pipelines and artifact types are short YAML files in the project's `.fab0/` that name those agents. *Reason:* any plugin can join a pipeline without knowing about fab0, and the wiring stays readable in one place.
-- **P2. The model does not route.** A deterministic resolver picks the next stage from the pipeline, the ledger and GitHub. The orchestrating session executes and doesn't decide. *Reason:* when a model routes, routing costs tokens on every step, and it is where most failures concentrate.
-- **P3. Git is the truth for content; GitHub is the truth for human decisions; the Projects board is a projection.** *Reason:* each fact has one home, so nothing has to be reconciled.
-- **P4. Verify at the source, cheaply, with standard tools.** An agent's output is checked against a schema when it returns, and files are linted when they are written. Judgment goes to a review agent. *Reason:* free-form output has to be re-parsed by custom checks, which grow without limit.
-- **P5. Prefer an artifact a tool can check over a section of prose.** Tasks are YAML, a verdict is JSON, scenarios are `.feature` files. *Reason:* a structured artifact needs a schema; a section of prose needs a parser.
-- **P6. No compile step.** The YAML is read at run time and checked by the resolver before anything runs. *Reason:* Claude Code already loads plugins and settings, so a generated copy would duplicate it.
-- **P7. Name capabilities, not vendors.** A stage asks for a model class, and the project maps classes to models. *Reason:* the YAML must not depend on one model provider.
-- **P8. Add a rule only when a run has needed it.** *Reason:* rules written ahead of use guess at problems and then have to be maintained.
+- **Building blocks, not a factory.** The core holds only what executes, validates and connects pipelines. Agents, skills, artifact formats and processes belong to a factory, because no single way of working suits every team.
+- **Any agent can be a step.** A step names any Claude Code agent. fab0 passes everything the agent needs in a brief, so the agent doesn't have to know fab0.
+- **The model doesn't route.** The engine decides what runs next; the session only carries it out. Routing by a deterministic program is repeatable and can be checked.
+- **Git is the truth for content; the tracker is the truth for human decisions.** Branches, pull requests and merges carry the work. Labels, relations and reviews carry what people decide. The board is a projection of both.
+- **Verify at the source, cheaply.** Returns are checked against schemas, outputs by linters, and judgment by a review agent, each as soon as the work is done.
+- **Agents do as much as the gates allow.** People take part where a gate is `human`, or where an `auto` gate hands over.
+- **A run works on its own branch.** Steps work on sub-branches that merge into it, so work runs in parallel. Only the finished run reaches the base branch, through a pull request a person merges.
+- **Dependencies are respected wherever they are declared:** in the data steps pass, in the order a pipeline gives, in the files a step claims, and in the tracker's own relations. See [dependencies and blocking](dependencies.md).
 
 ## Glossary
 
 | Term | Meaning |
 |---|---|
-| Item | A GitHub issue that a pipeline runs for, typed by its issue type (Story, Task, …) |
-| Run | One pipeline executing for one item, until it is done |
-| Run id | The issue number of the run's item, for example `412`. Commands, branches, ledger paths and the board all use it |
-| Stage | One step of a pipeline: an agent stage (one agent call) or an action stage |
-| Action | A deterministic GitHub operation with no model and no owner, made of a check and an apply step. Both are safe to repeat |
-| Task | One entry of a run's `tasks.yaml`. It has its own sub-issue, branch and pull request, but it is not a run. Commands address it as `--task T2` |
-| Attempt | The n-th execution of an agent stage for the same run and task |
-| Gate | What must pass before the pipeline moves on: `none`, an agent gate, or `human` |
-| Stage PR | The pull request of a stage branch. Merging it is the human gate |
-| Done | A task or run is done when its last human-gated pull request is merged. Issue state follows from that and is not the record |
-| Ledger | The append-only record of agent-stage attempts, kept in git |
-| Recipe | A complete set of `.fab0/` files for one way of working, copied into a project |
-| Home repo | The repository that holds `.fab0/fab0.yaml`, the specs and the ledgers of stages run there |
+| **factory** | A project's `.fab0/`: its pipelines, steps and artifacts, with the agents and skills they use |
+| **home repo** | The repository that holds `.fab0/` |
+| **run** | One execution of a pipeline for one work item. Its **run id** is the tracker item's number, or a name a person gives |
+| **step** | One piece of work, done by exactly one **executor**: an agent, an action, a command or a tool |
+| **unit** | A step as it runs: one step, or one step for one element of a `foreach`. Each unit has its own branch, attempts and gate |
+| **attempt** | One go at a unit. A unit is attempted again when its inputs change, its checks fail, or its gate rejects it |
+| **gate** | The transition after a step or a block: `none`, `auto` or `human` |
+| **artifact** | Something steps pass on: a file, a part of an issue or pull request, a tool's value, or nothing |
+| **action** | A built-in operation of fab0 on git or the tracker, such as opening the run's pull request. The engine performs actions itself |
+| **run branch** | The branch a run works on, `fab0/<run>/base` by default. Its pull request into the base branch is the run's result |
+| **hand-out** | What the engine gives the session for a unit: its branches, its worktree, its brief, the schema of its reply |
+| **brief** | The text an agent receives: its inputs, what to write where, what it may change, and how to reply |
+| **ledger** | The record of every attempt and gate decision, as YAML files in git |
+| **claim** | The paths a unit may write. Units whose claims overlap don't run at the same time |
+| **example** | A complete factory in [`fab0-dev/fab0-examples`](https://github.com/fab0-dev/fab0-examples), to copy into a project. See [examples](examples.md) |
 
 ## Where to go next
 
-- How a run moves: [execution](execution.md).
-- What stages pass to each other: [artifacts and the ledger](artifacts-and-ledger.md).
-- How people take turns: [gates and handoff](gates-and-handoff.md).
-- The file formats: [wiring reference](../reference/wiring.md).
+- To use a ready-made factory, see [use an example](../how-to/use-an-example.md).
+- To build your own, see [build your first factory](../how-to/build-your-first-factory.md).
+- To look up a field, see the [reference](../index.md#reference).
