@@ -1,0 +1,85 @@
+step: write
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T1
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+unit: T1
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: reject
+summary: 'The 0.6.2 claims are true at fab0-core e544633, the commit tagged 0.6.2.
+  In `apply.py:203`, `merge_unit` now merges labelled units. In `wiring.py:558`, `validate`
+  checks a `merge: auto` gate inside a gated block against `run`. That fits the owner''s
+  comment on fab0-dev/docs#14.; The owner also said to fix the other points the gate-1
+  reviewer listed (work/8/ledger/write-T1-1-gate.yaml at e2145b7). The writer''s summary
+  says ''The review listed no other points to fix'', but that review had three writer-fixable
+  findings beyond the label claims. All three are still on the page, unchanged.; A4
+  is still unmet for the ledger-branch case. The page never says what `git.auto_merge`
+  must hold for a `merge: auto` gate to pass `validate` there. Under `flat`, which
+  is the branching the page pairs with a ledger branch, the answer is `base` with
+  `allow_base: true` (wiring.py:557-558).; The ruleset sentence sends readers to set
+  up GitHub to learn how to let the fab0 login bypass the base branch ruleset. That
+  page and `github/SKILL.md:37` describe no bypass. Both tell the reader to require
+  a pull request so that only the run''s pull request reaches the base branch.; Checks
+  pass in the worktree: pymarkdownlnt, codespell, and check-reference.py with FAB0_CORE
+  set. Every relative link and anchor resolves. Only the two task files changed. The
+  page is a single how-to, and the index lists it under How-to guides.'
+verdict:
+  decision: reject
+  reasons:
+  - 'The 0.6.2 claims are true at fab0-core e544633, the commit tagged 0.6.2. In `apply.py:203`,
+    `merge_unit` now merges labelled units. In `wiring.py:558`, `validate` checks
+    a `merge: auto` gate inside a gated block against `run`. That fits the owner''s
+    comment on fab0-dev/docs#14.'
+  - The owner also said to fix the other points the gate-1 reviewer listed (work/8/ledger/write-T1-1-gate.yaml
+    at e2145b7). The writer's summary says 'The review listed no other points to fix',
+    but that review had three writer-fixable findings beyond the label claims. All
+    three are still on the page, unchanged.
+  - 'A4 is still unmet for the ledger-branch case. The page never says what `git.auto_merge`
+    must hold for a `merge: auto` gate to pass `validate` there. Under `flat`, which
+    is the branching the page pairs with a ledger branch, the answer is `base` with
+    `allow_base: true` (wiring.py:557-558).'
+  - The ruleset sentence sends readers to set up GitHub to learn how to let the fab0
+    login bypass the base branch ruleset. That page and `github/SKILL.md:37` describe
+    no bypass. Both tell the reader to require a pull request so that only the run's
+    pull request reaches the base branch.
+  - 'Checks pass in the worktree: pymarkdownlnt, codespell, and check-reference.py
+    with FAB0_CORE set. Every relative link and anchor resolves. Only the two task
+    files changed. The page is a single how-to, and the index lists it under How-to
+    guides.'
+  findings:
+  - check: Acceptance
+    message: 'For the ledger-branch case, A4 asks what `git.auto_merge` must hold
+      for a `merge: auto` gate to pass `validate`, but the page only says ''`validate`
+      still checks the target''; name it: under `flat`, `into` must hold `base` with
+      `allow_base: true` (under `run`, `run`) (wiring.py:557-558@e544633).'
+    location: docs/how-to/choose-git-workflow.md:32
+  - check: Truth
+    message: The link 'see [set up GitHub](github-setup.md)' backs the bypass advice,
+      but github-setup.md:52 and github/SKILL.md:37 only say to require a pull request
+      on the base branch and say nothing about a bypass for the fab0 login; drop the
+      link or point to a source that explains the bypass, and tell the reader this
+      changes the advice in set up GitHub.
+    location: docs/how-to/choose-git-workflow.md:31
+  - check: Style
+    message: The `validate` table splits the message 'merge auto would merge into
+      the {run|base} branch, which git.auto_merge.into doesn't allow' (wiring.py:561-562)
+      into two code spans, so a reader can't search for the message they actually
+      see; give it as one string, or as two complete messages.
+    location: docs/how-to/choose-git-workflow.md:99
+  - check: Truth
+    message: 'Minor: the page now requires 0.6.2, but the brief pins its sources at
+      41466ad (0.6.1); the owner''s comment on fab0-dev/docs#14 allows this, and the
+      brief''s pins should move to e544633 so later reviewers check against the right
+      commit.'
+    location: docs/how-to/choose-git-workflow.md:3
+  details:
+    unmet:
+    - A4

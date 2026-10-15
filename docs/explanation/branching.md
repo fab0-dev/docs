@@ -1,6 +1,6 @@
 # Branches and merges
 
-A run works on its own branch. Each unit works on a sub-branch of it, in its own worktree, so units run in parallel without touching each other. Only the finished run reaches the base branch. This page explains how. The [project reference](../reference/project.md#git) lists the settings.
+A run works on its own branch. Each unit works on a sub-branch of it, in its own worktree, so units run in parallel without touching each other. Under the default, run branching, only the finished run reaches the base branch. This page explains how. The [project reference](../reference/project.md#git) lists the settings, and [choose how a pipeline uses git](../how-to/choose-git-workflow.md) helps you pick them.
 
 ## Run branching (default)
 
@@ -20,9 +20,13 @@ main
 
 ## Flat branching
 
-With `branching: flat`, there is no run branch: each unit's pull request targets the base branch. A factory uses it to put each step on `main` as it is accepted.
+With `branching: flat`, there is no run branch: each unit's pull request targets the base branch. A factory uses it when its units are independent and each should be on `main` as soon as it is accepted, with no run-wide review to wait for.
 
-A pipeline whose steps write no files, such as one that works only in the tracker, opens no pull requests at all. It keeps its ledger on `ledger.branch`, which `apply` pushes and nothing merges, because the record must live in git and nothing may push to the base branch.
+A person merges each unit into the base branch, unless `git.auto_merge` allows the base branch (`into: [base]` with `allow_base: true`). Then `apply` merges gate `none`, label-decided and `merge: auto` units itself. The default holds back because the base branch is the project's, and fab0 doesn't push to it unless the project says it may. Units inside a gated block merge into the block's branch, not the base branch, so this doesn't hold them. To choose, see [choose how a pipeline uses git](../how-to/choose-git-workflow.md).
+
+## Runs that write no files
+
+A pipeline whose steps write no files, such as one that works only in the tracker, opens no pull requests at all. Whatever its branching, it keeps its ledger on `ledger.branch`, which `apply` pushes and nothing merges, because the record must live in git, and the base branch takes only work that a person or the merge policy accepts. The ledger branch belongs to this case, not to `flat`: under `run` branching such a pipeline still needs the run branch.
 
 ## Several repositories
 

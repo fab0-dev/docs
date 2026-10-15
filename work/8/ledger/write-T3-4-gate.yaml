@@ -1,0 +1,49 @@
+step: write
+attempt: 4
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T3
+base:
+  branch: fab0/8/base
+  sha: 0c5a7050bd375f682bb416750d8fbfdf163c9f03
+unit: T3
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: approve
+summary: The only change is the `auto_merge` row in docs/reference/project.md, within
+  T3's files.; Claims checked against fab0-core at e544633 (0.6.2) and match; A9 is
+  met from the page alone.; pymarkdownlnt, codespell and check-reference.py pass.
+verdict:
+  decision: approve
+  reasons:
+  - The only change is the `auto_merge` row in docs/reference/project.md, within T3's
+    files.
+  - Claims checked against fab0-core at e544633 (0.6.2) and match; A9 is met from
+    the page alone.
+  - pymarkdownlnt, codespell and check-reference.py pass.
+  findings:
+  - check: Truth (minor)
+    message: 'The row opens with ''Where `apply` may merge without a person'', but
+      under `run` branching `apply` merges gate `none` and label-decided units into
+      run branches whatever `auto_merge` holds, so a reader may think `into: [run]`
+      is needed for those merges too.'
+    location: docs/reference/project.md:82
+  - check: Truth (minor)
+    message: The sentence about a person merging into the base branch doesn't cover
+      a pipeline with a ledger branch, where nothing merges. A pointer to the `ledger`
+      section would help.
+    location: docs/reference/project.md:82
+  - check: Style (minor)
+    message: The row ends with a trailing pipe and the other rows don't. Lint passes.
+    location: docs/reference/project.md:82
+  - check: Sources (note)
+    message: The brief pins 41466ad (0.6.1) but the row describes 0.6.2 behaviour,
+      per the docs owner's instruction on fab0-dev/docs#15. F4 (project.json:139)
+      remains a fab0-core change.
+    location: docs/reference/project.md:82
+  details:
+    unmet: []
