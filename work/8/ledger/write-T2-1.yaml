@@ -1,0 +1,30 @@
+step: write
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T2
+unit: T2
+model: sonnet
+base:
+  branch: fab0/8/base
+  sha: 1a45b8c249ed4ee834da1c6bf09779e89f855735
+inputs:
+  brief: sha256:28bb4a040f60bb0162e2a56d8a97c8e9d2079de1d0882769a566c7e1fc611628
+  tasks: sha256:20cba1761fff451299f1b1b4fbdcb2032abc13e6e4d5c1b5f189a45b4e02e191
+  unit: sha256:bf2f08e01b33735a1536e50bc0af9c82e40522445872cacdfa4d1adcc2f8c5fa
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+claims:
+- home:docs/explanation/branching.md
+gate:
+  type: auto
+summary: 'Changed only docs/explanation/branching.md. It meets A8 and A10. The first
+  paragraph now links the how-to. The "Flat branching" section says who merges under
+  `flat` and why. A person merges each unit into the base branch unless `git.auto_merge`
+  has `into: [base]` with `allow_base: true`, because the base branch is the project''s.
+  It also says units inside a gated block aren''t held. The ledger-branch paragraph
+  moved to a new section, "Runs that write no files". That section says the ledger
+  branch applies whatever the branching, keeps the D18 reason, and notes that `run`
+  branching still needs the run branch. I checked the 0.6.1 policy behaviour against
+  schedule.py at 41466ad. Checks: pymarkdownlnt and codespell passed. check-reference.py
+  passed only with FAB0_CORE set to /Users/zhen/Work/Fab0/fab0-core, because it couldn''t
+  find fab0-core beside the worktree. I did not check that the links resolve.'
