@@ -1,0 +1,67 @@
+step: write
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T3
+base:
+  branch: fab0/8/base
+  sha: 9b8baf4a24adc9be9a6d2a892597a84c49b9b80c
+unit: T3
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/8/base
+  agent: docs-reviewer
+  decision: reject
+summary: 'The scope is right: only docs/reference/project.md changed. A9 is met: the
+  auto_merge row says that every merge into the base branch needs `into: [base]` with
+  `allow_base: true`, and that otherwise a person merges. This matches schedule.py:902-908
+  and wiring.py:277-280 at 41466ad.; One claim is false against the pinned source.
+  The row ends by saying `auto_merge` does not hold units inside a gated block. But
+  validate checks a `merge: auto` gate against the pipeline''s branching and nothing
+  else (wiring.py:552-558@41466ad), whatever block the unit sits in. Under `flat`,
+  a `merge: auto` unit inside a gated block is still refused unless `into` holds `base`.
+  A reader who trusts the row would write wiring that validate refuses.'
+verdict:
+  decision: reject
+  reasons:
+  - 'The scope is right: only docs/reference/project.md changed. A9 is met: the auto_merge
+    row says that every merge into the base branch needs `into: [base]` with `allow_base:
+    true`, and that otherwise a person merges. This matches schedule.py:902-908 and
+    wiring.py:277-280 at 41466ad.'
+  - 'One claim is false against the pinned source. The row ends by saying `auto_merge`
+    does not hold units inside a gated block. But validate checks a `merge: auto`
+    gate against the pipeline''s branching and nothing else (wiring.py:552-558@41466ad),
+    whatever block the unit sits in. Under `flat`, a `merge: auto` unit inside a gated
+    block is still refused unless `into` holds `base`. A reader who trusts the row
+    would write wiring that validate refuses.'
+  findings:
+  - check: Truth
+    message: '''Units inside a gated block merge into the block''s branch, so `auto_merge`
+      does not hold them'' is false for `merge: auto`: wiring.py:552-558@41466ad requires
+      `into` to hold `run` under `run` branching or `base` under `flat`, whether or
+      not the unit is inside a gated block. Only the scheduler''s wait for a person
+      (schedule.py:907, parent not the base branch) skips block units, so say that
+      the base-branch rule does not hold them and that validate still checks `merge:
+      auto`.'
+    location: docs/reference/project.md:82
+  - check: Truth
+    message: '''`into: [run]` covers `merge: auto` into run branches'' is narrower
+      than the source: under `run` branching validate requires `run` in `into` for
+      every `merge: auto` gate, including one that merges into a gated block''s branch,
+      so ''under `run` branching'' is the accurate condition.'
+    location: docs/reference/project.md:82
+  - check: Checks
+    message: 'Not blocking: pymarkdownlnt and codespell pass on the branch''s copy
+      of the page. I ran check-reference.py on the main working tree, where it passes.
+      The Field column of the changed row is unchanged, so the result holds for the
+      branch.'
+    location: docs/reference/project.md:82
+  - check: Truth
+    message: 'Not blocking, and not for this task: F4 still stands. The `auto_merge`
+      description in core:plugins/fab0/schemas/project.json:139@41466ad still says
+      only `merge: auto`, and changing it needs a code change in fab0-core.'
+    location: docs/reference/project.md:82
+  details:
+    unmet: []
