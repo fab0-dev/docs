@@ -1,6 +1,6 @@
 # Choose how a pipeline uses git
 
-This guide gets you the `git` and `ledger` settings for one pipeline: where its accepted work lands, whether it needs a ledger branch, and what `git.auto_merge` must allow. It needs fab0 0.6.1 or later, where every merge into the base branch obeys `git.auto_merge`, whatever the gate. For how branches and merges work, see [branches and merges](../explanation/branching.md); for the fields, see the [project reference](../reference/project.md#git) and its [`ledger`](../reference/project.md#ledger) section.
+This guide gets you the `git` and `ledger` settings for one pipeline: where its accepted work lands, whether it needs a ledger branch, and what `git.auto_merge` must allow. It needs fab0 0.6.2 or later, where every merge into the base branch obeys `git.auto_merge`, whatever the gate. For how branches and merges work, see [branches and merges](../explanation/branching.md); for the fields, see the [project reference](../reference/project.md#git) and its [`ledger`](../reference/project.md#ledger) section.
 
 ## 1. Decide where accepted work lands
 
@@ -28,7 +28,7 @@ On the ledger branch nothing merges. An auto gate's approval, or a human gate's 
 `git.auto_merge` has `into`, a list of `run` and `base`. Merging into the base branch also needs `allow_base: true`; the schema refuses `into: [base]` without it.
 
 - **`run`:** `apply` merges units with gate `none` and label-decided human gates into the run branch. A gate with `merge: auto` passes `validate` only if `into` holds `run`, which is the default.
-- **`flat`:** a unit with gate `none`, a label-decided human gate or `merge: auto` has the base branch as its parent. Unless `git.auto_merge` has `into: [base]` and `allow_base: true`, it waits, and a person merges its pull request. With both, `apply` merges it by pushing to the base branch. `validate` refuses `merge: auto` unless `into` holds `base`. A ruleset that requires pull requests on the base branch must let the fab0 login bypass it, or `apply`'s merges fail; see [set up GitHub](github-setup.md). Units inside a gated block merge into the block's branch either way, so this doesn't hold them.
+- **`flat`:** a unit with gate `none`, a label-decided human gate or `merge: auto` has the base branch as its parent. Unless `git.auto_merge` has `into: [base]` and `allow_base: true`, it waits, and a person merges its pull request. With both, `apply` merges it by pushing to the base branch. `validate` refuses `merge: auto` unless `into` holds `base`. A ruleset that requires pull requests on the base branch must let the fab0 login bypass it, or `apply`'s merges fail; see [set up GitHub](github-setup.md). Units inside a gated block merge into the block's branch either way, so this doesn't hold them, and `validate` checks a `merge: auto` gate there against `run`, not `base`.
 - **A ledger branch:** leave `merge: auto` off, since the gate already decides. `validate` still checks the target of a `merge: auto` gate.
 - **`pr.merge`:** merges the run branch into the base branch, so it only acts under `run`; under `flat` it does nothing. In either case `validate` refuses it unless `into` holds `base` and `allow_base` is `true`. It pushes to the base branch too, so the same ruleset rule applies.
 
