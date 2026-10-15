@@ -1,0 +1,30 @@
+step: write
+attempt: 4
+executor: agent
+actor: eugenefurs
+branch: fab0/8/write-T3
+unit: T3
+model: sonnet
+base:
+  branch: fab0/8/base
+  sha: 0c5a7050bd375f682bb416750d8fbfdf163c9f03
+inputs:
+  brief: sha256:28bb4a040f60bb0162e2a56d8a97c8e9d2079de1d0882769a566c7e1fc611628
+  tasks: sha256:20cba1761fff451299f1b1b4fbdcb2032abc13e6e4d5c1b5f189a45b4e02e191
+  unit: sha256:7c4a601bc5aedd9d838e4da6d9115ab15f53488d3acef65b5faba44829f6d508
+  reviews: sha256:af2b6357aaa91aca6c467af92dffe88600f3dba14446d701bc21f92b299feec8
+rework:
+- stale
+claims:
+- home:docs/reference/project.md
+gate:
+  type: auto
+summary: 'I made no edits this attempt. The reviews on fab0-dev/docs#15 say to keep
+  the `auto_merge` row in `docs/reference/project.md` as written, and that no other
+  points remain for T3. The row already says which merges `git.auto_merge` governs,
+  and that a person merges into the base branch when it doesn''t allow base. That
+  meets A9. I did not re-read the 0.6.2 engine code this attempt. The row''s 0.6.2
+  claims rest on attempt 3''s reading of `wiring.py` `_check_gate`. Checks: pymarkdownlnt
+  and codespell print nothing; check-reference.py reports every field of 6 pages matches
+  its schema. F4 still needs a code change in fab0-core: the description at `project.json:139`
+  still says only `merge: auto`.'
