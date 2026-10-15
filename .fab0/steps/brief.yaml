@@ -1,0 +1,10 @@
+step: brief
+agent: docs-planner
+model: deep
+skills: [docs-style, example-skills:doc-coauthoring]
+inputs: [intent, reviews]          # the planner reads docs/ and the sources through repos.read
+outputs: [brief, tasks]
+repos: {write: [home], read: [all]}
+paths: ["briefs/{run}.md", "work/{run}/tasks.yaml"]
+return: {questions: optional}
+owner: docs-owner

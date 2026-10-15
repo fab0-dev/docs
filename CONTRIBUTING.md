@@ -14,7 +14,7 @@ Every change reaches `main` through a reviewed pull request.
 
 - **Explanation** (`docs/explanation/`): how fab0 works and why. Principles, design, trade-offs.
 - **How-to** (`docs/how-to/`): steps for one task, for a reader who knows what they want.
-- **Reference** (`docs/reference/`): the file formats and commands, field by field. The JSON Schemas and the resolver in [`fab0-core`](https://github.com/fab0-dev/fab0-core) are the source of truth; when they disagree with a page, the page is wrong.
+- **Reference** (`docs/reference/`): the file formats, actions and commands, field by field. The JSON Schemas and the engine in [`fab0-core`](https://github.com/fab0-dev/fab0-core) are the source of truth; when they disagree with a page, the page is wrong. `scripts/check-reference.py` checks every field both ways.
 - **Tutorials** (`docs/tutorials/`, not yet created): a guided first experience.
 
 Write one kind of page per file. Link to the other kinds instead of mixing them.
@@ -22,7 +22,7 @@ Write one kind of page per file. Link to the other kinds instead of mixing them.
 ## Style
 
 - Plain, short sentences. Active voice. Present tense for what fab0 does.
-- Say what is built. Mark what isn't: **Planned (step X)**, with the step from the [roadmap](https://github.com/fab0-dev/fab0/blob/main/ROADMAP.md).
+- Say what is built. Mark what isn't as **Planned**, and say what exists today.
 - Use fab0's terms as the [glossary](docs/explanation/overview.md#glossary) defines them.
 - Give a reason for every rule and principle.
 - No counts or sizes that go stale.
@@ -30,24 +30,25 @@ Write one kind of page per file. Link to the other kinds instead of mixing them.
 
 ## Running a Docs issue
 
-> **Suspended.** This repository's fab0 pipeline is archived during the refactor and rebuilt on the new core in step R7 of [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md). Until then, docs changes are ordinary pull requests. The rest of this section describes the 0.5 pipeline.
+> **From fab0 0.6.** The factory is on schema 2, which the installed 0.5 release refuses, so the `fab0` plugin stays disabled here until 0.6 is released in step R8 of [REFACTOR.md](https://github.com/fab0-dev/fab0/blob/main/REFACTOR.md). Until then, docs changes are ordinary pull requests.
 
-A Docs issue runs this repository's own fab0 pipeline (`.fab0/`):
+A Docs issue runs this repository's own fab0 factory (`.fab0/`) on its own branch, `fab0/<issue>/base`:
 
-| Stage | Who | What | Gate |
+| Step | Who | What | Gate |
 |---|---|---|---|
-| `brief` | docs owner | `docs-planner` compares the docs with fab0's sources and writes `briefs/<run>.md` (findings, outline, acceptance checks) and `work/<run>/tasks.yaml` | merging the brief pull request |
-| `plan` | anyone (action) | one Task sub-issue per page or section | — |
-| `write` (per task) | docs owner | `docs-writer` writes the page | `docs-reviewer` on a different model, then merging the task pull request |
-| `deliver` | anyone (action) | appends the delivered tasks to the brief, in a pull request that closes the issue | merging it |
+| start | `apply` | the run branch, and a draft pull request into `main` that closes the issue | — |
+| `brief` | `docs-planner` | compares the docs with fab0's sources and writes `briefs/<run>.md` (findings, outline, acceptance checks) and `work/<run>/tasks.yaml` | **human**: the docs owner merges the brief's pull request into the run branch |
+| tasks | `apply` | one Task sub-issue per page or section | — |
+| `write`, per task | `docs-writer` | writes the page, in parallel with tasks whose files don't overlap | **auto**: `docs-reviewer`, on a different model; on approval `apply` merges the page into the run branch |
+| end | `apply` | closes the Task sub-issues, brings `main` in, removes the task list, marks the run's pull request ready | **human**: the docs owner merges it into `main` |
 
-The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill.
+The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill. Ask for changes to a brief or a page with a review on its pull request; a Comment review is enough.
 
 Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https://github.com/fab0-dev/fab0).
 
 **Setup,** once per clone:
 
-1. Check out [`fab0`](https://github.com/fab0-dev/fab0), [`fab0-core`](https://github.com/fab0-dev/fab0-core) and [`fab0-recipes`](https://github.com/fab0-dev/fab0-recipes) beside this repository. The planner reads them as sources.
+1. Check out [`fab0`](https://github.com/fab0-dev/fab0), [`fab0-core`](https://github.com/fab0-dev/fab0-core) and [`fab0-examples`](https://github.com/fab0-dev/fab0-examples) beside this repository. The planner reads them as sources, and `scripts/check-reference.py` reads the schemas from `fab0-core`.
 2. Open Claude Code here and trust the folder.
 3. Install the two plugins this repository enables:
 
@@ -66,11 +67,11 @@ Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https
    fab0-resolve validate
    ```
 
-**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run <issue number>`. `/fab0:inbox` shows what is waiting for you. Progress shows on the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
+**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run <issue number>`. `/fab0:inbox` shows what is waiting for you. Each item's state shows in the `Waiting on` field of the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
 
 ## Checks
 
-They need only [`uv`](https://docs.astral.sh/uv/):
+They need [`uv`](https://docs.astral.sh/uv/), and a `fab0-core` checkout beside this repository for the field check:
 
 ```bash
 uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
@@ -80,4 +81,8 @@ uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
 uvx codespell
 ```
 
-CI runs both on every pull request, and checks links with lychee: offline on every pull request, and the full check weekly.
+```bash
+python3 scripts/check-reference.py
+```
+
+CI runs them on every pull request, and checks links with lychee: offline on every pull request, and the full check weekly.

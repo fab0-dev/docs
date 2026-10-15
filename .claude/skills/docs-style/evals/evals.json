@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "A Docs issue asks: 'People keep asking how to add a second code repository to an existing fab0 project. Document it.' Which Diátaxis kind is this page, which folder does it go in, and what must it not contain?",
-      "expected_output": "A how-to page in docs/how-to/. It gives the steps for the goal only (edit repos in fab0.yaml with path, github, owner and key; check out the sibling; run fab0-resolve validate) and links to explanation/multi-repo.md and reference/wiring.md instead of explaining design or listing every field.",
+      "expected_output": "A how-to page in docs/how-to/. It gives the steps for the goal only (add the repository to repos in fab0.yaml with path, github and owner; check out the sibling; run fab0-resolve validate) and links to explanation/branching.md and reference/project.md instead of explaining design or listing every field.",
       "assertions": [
         "Classifies the page as a how-to",
         "Places it under docs/how-to/",
@@ -13,7 +13,7 @@
     },
     {
       "id": 2,
-      "prompt": "Write the section headings, in order, of the brief for a Docs run whose intent is 'Audit reference/wiring.md against the core schemas', and give one example finding in the required form.",
+      "prompt": "Write the section headings, in order, of the brief for a Docs run whose intent is 'Audit reference/step.md against the core schemas', and give one example finding in the required form.",
       "expected_output": "The seven sections in order: Intent, Readers, Sources, Findings, Outline, Acceptance, Open questions. A finding numbered F1 that states what the page says and what the source says, with path:line@sha for both, and whether a docs task fixes it or it needs code.",
       "assertions": [
         "Lists exactly Intent, Readers, Sources, Findings, Outline, Acceptance, Open questions in that order",
@@ -24,22 +24,22 @@
     },
     {
       "id": 3,
-      "prompt": "Review this sentence proposed for docs/explanation/gates-and-handoff.md: 'When the reviewer rejects a task, fab0 will simply re-run the implementer as many times as needed until it is approved, and then automatically merges the PR.' The resolver sets MAX_REWORK = 2 and the orchestrator never merges.",
-      "expected_output": "A reject with findings: the claim is false on two counts (at most two re-runs, then escalation to a person; fab0 never merges, merging is a person's approval), plus style findings (future tense 'will', filler 'simply', 'PR' instead of 'pull request').",
+      "prompt": "Review this sentence proposed for docs/explanation/gates.md: 'When the reviewer rejects a task, fab0 will simply re-run the implementer as many times as needed until it is approved, and a person then always merges the PR.' The pipeline schema says an auto gate's `retry` defaults to 2 and `then` to `human`, and that with `merge: auto` the engine's `apply` merges the unit within `git.auto_merge`.",
+      "expected_output": "A reject with findings: the claim is false on two counts (re-runs stop at the gate's retry, 2 by default, then `then` decides, a person by default; with `merge: auto`, apply merges the approved unit, within the merge policy, so a person doesn't always merge), plus style findings (future tense 'will', filler 'simply', 'PR' instead of 'pull request').",
       "assertions": [
-        "Flags the unlimited re-run claim as false, citing the limit of two re-runs before escalation",
-        "Flags automatic merging as false: fab0 never merges",
+        "Flags the unlimited re-run claim as false, citing the retry limit and what follows it",
+        "Flags 'a person always merges' as false: with merge: auto, apply merges within the policy",
         "Notes at least one style or vocabulary issue (future tense, 'simply', or 'PR')",
         "The verdict is reject, not approve"
       ]
     },
     {
       "id": 4,
-      "prompt": "A page says: '`when` lets a stage be skipped on a condition over an artifact's fields.' The resolver refuses `when` with 'not supported yet'. How should the page say it?",
-      "expected_output": "Mark it Planned with its roadmap step, for example '**Planned (step B.4):** `when` will skip a stage…', and say what exists today: the resolver refuses `when` as not supported yet.",
+      "prompt": "A page says: '`call` runs another pipeline as a child run.' `fab0-resolve validate` refuses `call` until a factory needs it. How should the page say it?",
+      "expected_output": "Mark it Planned, for example '**Planned:** `call` runs another pipeline as a child run', and say what exists today: validate checks its shape and refuses it.",
       "assertions": [
-        "Uses the Planned marker with a roadmap step",
-        "States that the resolver refuses it today"
+        "Uses the Planned marker",
+        "States that validate refuses it today"
       ]
     }
   ]

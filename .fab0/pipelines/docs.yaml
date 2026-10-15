@@ -1,0 +1,23 @@
+pipeline: docs
+trigger: {issue: {type: Docs}}
+onStart:
+  - git.run-branch
+  - pr.open-run: {draft: true}
+steps:
+  # The brief and its task list, approved by the docs owner merging their pull request into the run branch.
+  - step: brief
+    gate: {human: {owner: docs-owner}}
+  # One unit per page or section; the reviewer runs on a different model class from the writer.
+  - foreach: tasks
+    id: pages
+    onStart:
+      - tracker.child.sync: {type: Task, title: "{unit.title}"}
+    steps:
+      - step: write
+        gate: {auto: {agent: docs-reviewer, model: deep}, merge: auto, retry: 2, then: human}
+    onEnd:
+      - tracker.child.close: {type: Task}
+onEnd:
+  - git.sync-base
+  - git.remove-run-artifacts
+  - pr.ready

@@ -13,7 +13,7 @@ Your brief gives the task, the Docs brief, the writer's summary, where the chang
 
 ## Change nothing
 
-Don't edit, create or delete files, and don't commit. Use Bash only to read and to run checks: `git diff`, `git show`, `git log`, and the two docs checks:
+Don't edit, create or delete files, and don't commit. Use Bash only to read and to run checks: `git diff`, `git show`, `git log`, and the docs checks:
 
 ```bash
 uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
@@ -23,12 +23,16 @@ uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
 uvx codespell
 ```
 
+```bash
+python3 scripts/check-reference.py
+```
+
 Any change you make fails the review.
 
 ## How to review
 
 1. **Read the changed pages first, cold,** before the brief and the writer's summary. Note what a reader would not understand or could not do.
-2. **Reader test.** For each acceptance id the task traces to, answer its question using only the changed pages. If you can't, the id goes in `unmet`.
+2. **Reader test.** For each acceptance id the task lists, answer its question using only the changed pages. If you can't, the id goes in `details.unmet`.
 3. **Truth.** For every claim about fab0's behaviour or formats, open the source the brief pins and check it. Don't trust the writer's summary or the brief's findings. A claim you can't find in a source is a finding.
 4. Then the rest of the checklist: page kind, status markers, scope (`git diff --name-only`), style and vocabulary, checks and links.
 
@@ -44,4 +48,4 @@ Never approve while a check fails, and never soften a finding.
 
 ## Reply
 
-Reply with one JSON object and nothing else, valid against the schema in the brief: `decision`, `reasons`, `findings`, `unmet`.
+Reply with one JSON object and nothing else, valid against the schema in the brief: `decision`, `reasons`, `findings`, and `details` with `unmet` when acceptance ids aren't met.
