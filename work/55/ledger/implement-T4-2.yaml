@@ -1,0 +1,39 @@
+step: implement
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/55/implement-T4
+unit: T4
+model: sonnet
+base:
+  branch: fab0/55/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+inputs:
+  spec: sha256:d88b5b57cce2b7b09e56c30934de429032ced3cc864fb617127d1baa6ca66d40
+  tasks: sha256:c4e8d973b1dfc582f226f234d70b1969635e1013e0fc4b49dfe03993573b062d
+  unit: sha256:31f46deea2b00013f06ee36db1dbdb965c66c94ba0e09bd39ab75d8c686321aa
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+rework:
+- rejected
+claims:
+- docs:docs/reference/commands.md
+- docs:docs/explanation/execution.md
+gate:
+  type: auto
+summary: 'I fixed the `record` row in /Users/zhen/Work/Fab0/docs/.git/fab0/worktrees/55/implement-T4/docs/reference/commands.md.
+  It no longer says `record` reads nothing beyond the run''s item. It now says `record`
+  reads the run''s item only when it must pick the pipeline, and that the unit and
+  its context come from git and its saved hand-out. It also names the exception that
+  T3''s cmd_record has (checked against fab0/55/base). A unit behind a `when` that
+  only the tracker can decide isn''t in the offline run, so `record` then reads the
+  tracker as `status` does. I changed nothing else in this attempt, and docs/explanation/execution.md
+  is as in attempt 1. I added no tests, since this is a docs-only task. Commands run:
+  `uvx pymarkdownlnt scan -r docs` and `uvx codespell docs` (both without findings),
+  and `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core python3 scripts/check-reference.py`
+  (passed: every field of 6 pages matches its schema). I could not run the offline
+  link check, because lychee isn''t installed. The `#next---apply` fragment matches
+  GitHub''s slug for the heading ### `next --apply` (backticks dropped, the space
+  becomes a hyphen, the two hyphens stay), but no tool has checked it. I found no
+  scenario without a task and no change needed outside the task''s files.'
+started: '2026-10-16T19:29:26Z'
+ended: '2026-10-16T19:30:56Z'

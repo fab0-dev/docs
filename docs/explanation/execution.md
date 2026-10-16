@@ -23,13 +23,15 @@ The model doesn't route, because a deterministic program is repeatable, and can 
 
 `/fab0:run <run>` repeats these steps until nothing more is handed out:
 
-1. **`apply`** performs what is due: every action whose check fails, every merge a gate allows, every pull request a person or a gate needs, and every question or escalation to post. Each write checks first, so running it twice changes nothing.
-2. **`next`** hands out every unit that is ready, and every auto gate that is due. It claims each unit by creating its branch on `origin`.
-3. **The session** prepares each hand-out's checkout, and runs the agents of the round in parallel, each in its own worktree. It runs commands in their worktree, and calls tools.
-4. **`record`** checks each reply and output, and writes the ledger entry. A gate's verdict is recorded the same way.
-5. **The session commits** what was recorded, with the work, on the unit's branch.
+1. **`next --apply`** first performs what is due, as `apply` does: every action whose check fails, every merge a gate allows, every pull request a person or a gate needs, and every question or escalation to post. Each write checks first, so running it twice changes nothing. Then it hands out every unit that is ready, and every auto gate that is due, from the same read of the tracker, and claims each unit by creating its branch on `origin`. The hand-outs reuse the last read of the tracker that `apply` made, so `next` doesn't read it again. When `apply` changes nothing, the whole round is one pass over the tracker; when it changes something, such as a merge, `apply` reads the tracker afresh to see the effect, and the hand-outs come from that last read. `--unit` limits the hand-outs only.
+2. **The session** prepares the checkouts of every hand-out of the round in one turn. In the next it runs the agents of the round in parallel, each in its own worktree, runs commands in their worktree, and calls tools.
+3. **The session records and commits.** For each hand-out, in one Bash call, it writes the reply, runs `record`, which checks the reply or output and writes the ledger entry (a gate's verdict is recorded the same way), and commits what was recorded, with the work, on the unit's branch. The calls are chained, so a refused record commits nothing, and the round's calls go in one message, so one refusal doesn't stop the others.
+
+A round of three agents is four turns: `next --apply`, the checkouts, the agents, and the records with their commits. The session still shows what `apply` did, and a start line and an end line for each hand-out.
 
 Then it reports what ran and how long each unit took, what `apply` did, and what the run is waiting for, and on whom.
+
+`apply` and `next` still work on their own, so a session or a person can run them one after the other: `next --apply` is the same work without `next`'s own read of the tracker.
 
 A run's state is `units` while work is left, `waiting` when only the merge of its pull request into the base branch is left, and `done` when that pull request is merged.
 
@@ -37,10 +39,10 @@ A run's state is `units` while work is left, `waiting` when only the merge of it
 
 A run can take twenty minutes, so the session shows its progress as it goes. The engine writes the lines and works out the times; the session shows the lines exactly as they are.
 
-- **A start line for each hand-out.** After `next`, and before any agent starts, the session shows one line for each hand-out of the round: the unit, its attempt, the agent (or the command, or the tool's name), the model and the branch. For example: `implement-T2, attempt 2: implementer on opus, branch fab0/53/implement-T2`. A gate's line says it is the gate of the unit it judges. A command's line gives the command, and a tool's line gives the tool's name. An action gets no line: `apply` performs it.
+- **A start line for each hand-out.** After `next --apply`, and before any agent starts, the session shows one line for each hand-out of the round: the unit, its attempt, the agent (or the command, or the tool's name), the model and the branch. For example: `implement-T2, attempt 2: implementer on opus, branch fab0/53/implement-T2`. A gate's line says it is the gate of the unit it judges. A command's line gives the command, and a tool's line gives the tool's name. An action gets no line: `apply` performs it.
 - **The agents' activity.** The agents of a round start together, in the foreground, and Claude Code shows what each one does while it works, such as the tool calls it makes. Nothing is serialized to make this visible: the agents still run in parallel.
 - **An end line for each record.** When a unit or a gate is recorded, the session shows its outcome and how long it took, from the hand-out to the record, checkout time included. For example: `implement-T2, attempt 2: verified, 4m 12s`. A unit that fails its checks reads `not verified`, with the names of the failed checks. A command adds its exit code, and a unit with questions says how many. A gate's line names the gate, as its start line does, and gives its decision (`approved`, `rejected` or `escalated`), as in `gate of implement-T2, attempt 1: rejected, 1m 5s`. For a command gate it gives the decision and the exit code. A unit or gate handed out by an older engine, or recorded without a start, says the time is unknown.
-- **What `apply` did.** At the top of each round the session shows a short list, one line for each thing `apply` did: a merge, a pull request with its link, a sync, a signal. When `apply` did nothing, it says so in one line.
+- **What `apply` did.** At the top of each round the session shows a short list, one line for each thing `next --apply` did, which is what `apply` does: a merge, a pull request with its link, a sync, a signal. When `apply` did nothing, it says so in one line.
 - **The end report.** When the run stops, the report gives each unit's total duration: the sum over all its attempts and gate decisions. A unit that was never recorded, or whose ledger entries have no times, shows none.
 
 The engine keeps the start and end of every attempt and every gate decision in the [ledger](../reference/ledger.md), so `fab0-resolve status` gives each unit's duration at the end of the run or any time later. Times are UTC, to the second. A duration is never negative.

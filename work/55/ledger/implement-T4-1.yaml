@@ -1,0 +1,53 @@
+step: implement
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/55/implement-T4
+unit: T4
+model: sonnet
+base:
+  branch: fab0/55/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+inputs:
+  spec: sha256:d88b5b57cce2b7b09e56c30934de429032ced3cc864fb617127d1baa6ca66d40
+  tasks: sha256:c4e8d973b1dfc582f226f234d70b1969635e1013e0fc4b49dfe03993573b062d
+  unit: sha256:31f46deea2b00013f06ee36db1dbdb965c66c94ba0e09bd39ab75d8c686321aa
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+claims:
+- docs:docs/reference/commands.md
+- docs:docs/explanation/execution.md
+gate:
+  type: auto
+summary: "S23 is delivered: both docs pages now describe `next --apply` and the loop\
+  \ `/fab0:run` follows. The markdown lint (`uvx pymarkdownlnt scan -r docs`) and\
+  \ the spelling check (`uvx codespell docs`) pass with no findings. I didn't run\
+  \ the offline link check or `scripts/check-reference.py`. I added no tests, since\
+  \ this is a docs-only task.\n\nI wrote the docs from T3's merged code, taken from\
+  \ `fab0/55/base` in `fab0-core`: `cli.py` and the `run` skill's `SKILL.md`.\n\n\
+  Changes in `/Users/zhen/Work/Fab0/docs/.git/fab0/worktrees/55/implement-T4/docs/reference/commands.md`:\n\
+  - **`/fab0:run` row:** the loop is now `next --apply`, the hand-outs, `record`,\
+  \ and again.\n- **`next` row:** it is now `next <run> [--apply]`, with a link to\
+  \ a new `next --apply` section.\n- **New `next --apply` section:** it covers these\
+  \ points.\n  - It performs what is due as `apply` does, then hands out from the\
+  \ same tracker read. Nothing is kept between commands.\n  - Its result holds `applied`\
+  \ and `kind`, plus `handouts` and `units` as `next` would give right after `apply`.\n\
+  \  - `--unit` limits only the hand-outs. `apply` still acts on every unit, and a\
+  \ unit that isn't ready is refused with exit 4, with `applied` still listed.\n \
+  \ - A run that is `done` or `waiting` hands out nothing.\n  - If `apply` fails,\
+  \ the command exits with `apply`'s code and error, and hands out and claims nothing.\n\
+  \  - `next` and `apply` without `--apply` behave as before.\n- **`record` row:**\
+  \ it now says it reads nothing from the tracker beyond the run's item, and only\
+  \ to pick the pipeline.\n- **Options table:** a new `--apply` row, and the `--unit`\
+  \ row now says what it does with `next --apply`.\n\nChanges in `/Users/zhen/Work/Fab0/docs/.git/fab0/worktrees/55/implement-T4/docs/explanation/execution.md`:\n\
+  - **The loop:** rewritten as three steps. The first is `next --apply`. The second\
+  \ is the session preparing the round's checkouts in one turn, then running the agents\
+  \ in parallel. The third is the session recording and committing each hand-out in\
+  \ one chained Bash call, with the round's calls in one message, so a refused record\
+  \ commits nothing and doesn't stop the others.\n- **Turn count:** it states that\
+  \ a round of three agents takes four turns, and that the session still shows what\
+  \ `apply` did and every start and end line.\n- **Standalone commands:** it says\
+  \ `apply` and `next` still work on their own.\n- **\"What you see during a run\"\
+  :** the start-line and `apply`-list bullets now refer to `next --apply`.\n\nI found\
+  \ no scenario without a task and no change needed in a file outside my task."
+started: '2026-10-16T19:23:19Z'
+ended: '2026-10-16T19:25:11Z'
