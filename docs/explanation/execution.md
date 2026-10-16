@@ -62,7 +62,7 @@ The log is a file on the machine that runs the engine: `fab0/events/<run>.jsonl`
 
 `fab0-resolve log <run>` prints it, one line for each event, oldest first: its time (UTC, to the second) and its line.
 
-```
+```text
 $ fab0-resolve log 54
 2026-10-16T10:04:12Z  spec, attempt 1: implementer on opus, branch fab0/54/spec
 2026-10-16T10:12:40Z  spec, attempt 1: verified, 8m 28s

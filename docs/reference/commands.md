@@ -47,7 +47,7 @@ Every command prints one JSON object, except `log`, which prints text when it su
 
 `log` prints one line for each event, and follows the run from any terminal with `--follow`:
 
-```
+```text
 $ fab0-resolve log 54 --follow
 2026-10-16T10:04:12Z  spec, attempt 1: implementer on opus, branch fab0/54/spec
 2026-10-16T10:12:40Z  spec, attempt 1: verified, 8m 28s
