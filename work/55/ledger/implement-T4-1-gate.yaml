@@ -1,0 +1,58 @@
+step: implement
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/55/implement-T4
+base:
+  branch: fab0/55/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+unit: T4
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/55/base
+  agent: reviewer
+  decision: reject
+summary: 'S23 is covered. Both pages describe `next --apply` and what it returns,
+  say that `--unit` limits only the hand-outs, and describe the loop that the merged
+  run skill follows: four turns, chained record and commit, one message per round.
+  The diff touches only the task''s two files. Markdown lint, codespell and check-reference.py
+  (FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core) all pass.; The new `record` row in docs/reference/commands.md
+  says `record` reads nothing from the tracker beyond the run''s item, and only to
+  pick the pipeline. T3''s merged code does more than that. In cmd_record (plugins/fab0/lib/fab0_engine/cli.py
+  on fab0/55/base, around line 314), when the offline run lacks the unit, it calls
+  `run.online()` and evaluates the run against the real tracker. That happens for
+  a unit behind a `when` that only the tracker can decide. So the reference page claims
+  more than the engine does.'
+verdict:
+  decision: reject
+  reasons:
+  - 'S23 is covered. Both pages describe `next --apply` and what it returns, say that
+    `--unit` limits only the hand-outs, and describe the loop that the merged run
+    skill follows: four turns, chained record and commit, one message per round. The
+    diff touches only the task''s two files. Markdown lint, codespell and check-reference.py
+    (FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core) all pass.'
+  - The new `record` row in docs/reference/commands.md says `record` reads nothing
+    from the tracker beyond the run's item, and only to pick the pipeline. T3's merged
+    code does more than that. In cmd_record (plugins/fab0/lib/fab0_engine/cli.py on
+    fab0/55/base, around line 314), when the offline run lacks the unit, it calls
+    `run.online()` and evaluates the run against the real tracker. That happens for
+    a unit behind a `when` that only the tracker can decide. So the reference page
+    claims more than the engine does.
+  findings:
+  - check: Quality that matters
+    message: The `record` row says it reads nothing from the tracker beyond the run's
+      item for picking the pipeline. But T3's cmd_record falls back to a full tracker
+      evaluation (`run.online()`) when the unit is behind a tracker-decided `when`
+      and so is missing from the offline run. The row must name that exception or
+      stop claiming no reads.
+    location: docs/reference/commands.md:23
+  - check: Tests and checks
+    message: 'Not blocking: the offline link check (lychee --offline --include-fragments,
+      part of CI) was not run, by the producer or by this review, because lychee isn''t
+      installed. The new fragment link `#next---apply` matches GitHub-style slugging
+      of the heading `### `next --apply``, but no tool has checked it.'
+    location: docs/reference/commands.md:22
+started: '2026-10-16T19:26:14Z'
+ended: '2026-10-16T19:28:26Z'
