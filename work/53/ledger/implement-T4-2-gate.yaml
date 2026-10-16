@@ -1,0 +1,64 @@
+step: implement
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/53/implement-T4
+base:
+  branch: fab0/53/base
+  sha: abbdcfee914f2c31d37fe341b67556164ed4ec1e
+unit: T4
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/53/base
+  agent: reviewer
+  decision: reject
+summary: 'S14''s content is all there, and only the three task files changed (docs/explanation/execution.md,
+  docs/reference/ledger.md, docs/reference/commands.md). The new ''What you see during
+  a run'' section covers the start lines, the agents'' activity, the end lines with
+  outcome and duration, the list after each apply and the end report''s durations.
+  ledger.md lists `started` and `ended`. commands.md says `status` gives each unit''s
+  duration. Both findings from gate 1 are fixed: the timestamps are now quoted, and
+  the end line uses `approved`/`rejected`/`escalated`.; Checks run in the T4 worktree:
+  `uvx pymarkdownlnt scan -r docs` passes, `uvx codespell docs` passes, and `FAB0_CORE=<archive
+  of fab0-core origin/fab0/53/base> python3 -I scripts/check-reference.py` passes
+  (''every field of 6 pages matches its schema''). lychee isn''t installed here, so
+  I didn''t run it. The one new link (../reference/ledger.md) points to a file that
+  exists.; One example is still wrong. The page says the session shows the engine''s
+  lines exactly as they are, but its gate end-line example leaves out the `gate of`
+  prefix that the engine writes and that S6 requires. The producer can fix this.'
+verdict:
+  decision: reject
+  reasons:
+  - 'S14''s content is all there, and only the three task files changed (docs/explanation/execution.md,
+    docs/reference/ledger.md, docs/reference/commands.md). The new ''What you see
+    during a run'' section covers the start lines, the agents'' activity, the end
+    lines with outcome and duration, the list after each apply and the end report''s
+    durations. ledger.md lists `started` and `ended`. commands.md says `status` gives
+    each unit''s duration. Both findings from gate 1 are fixed: the timestamps are
+    now quoted, and the end line uses `approved`/`rejected`/`escalated`.'
+  - 'Checks run in the T4 worktree: `uvx pymarkdownlnt scan -r docs` passes, `uvx
+    codespell docs` passes, and `FAB0_CORE=<archive of fab0-core origin/fab0/53/base>
+    python3 -I scripts/check-reference.py` passes (''every field of 6 pages matches
+    its schema''). lychee isn''t installed here, so I didn''t run it. The one new
+    link (../reference/ledger.md) points to a file that exists.'
+  - One example is still wrong. The page says the session shows the engine's lines
+    exactly as they are, but its gate end-line example leaves out the `gate of` prefix
+    that the engine writes and that S6 requires. The producer can fix this.
+  findings:
+  - check: Agreement with the spec
+    message: 'The gate end-line example `implement-T2, attempt 1: rejected, 1m 5s`
+      doesn''t match what the engine writes: gates.py builds the label as `gate of
+      {unit_id}`, so the line is `gate of implement-T2, attempt 1: rejected, 1m 5s`,
+      and S6 requires the line to say it is the gate of implement-T2. Fix the example
+      and say that the gate''s end line names the gate, as the start-line bullet already
+      does.'
+    location: docs/explanation/execution.md:42
+  - check: Tests and checks
+    message: lychee (the CI's offline link check) is not installed in this environment,
+      so it was not run. The producer didn't re-run it on attempt 2 either.
+    location: .github/workflows/docs.yml:35
+  details:
+    unmet:
+    - S14
