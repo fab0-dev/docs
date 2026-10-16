@@ -1,0 +1,72 @@
+step: implement
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/54/implement-T4
+base:
+  branch: fab0/54/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+unit: T4
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/54/base
+  agent: reviewer
+  decision: reject
+summary: 'The docs CI''s Markdown lint step (`uvx pymarkdownlnt scan -r docs README.md
+  CONTRIBUTING.md`, from .github/workflows/docs.yml) fails on both new example blocks:
+  MD040, fenced code block without a language. Every other check passes and the base
+  branch lints clean, so this change is what breaks it.; The content does what S20
+  asks. It says what the log holds and where it is kept, that it is local to the machine,
+  how `fab0-resolve log` and `--follow` work with example output, that `/fab0:run`
+  shows the follow command once in the first round, and that the inbox shows each
+  run''s latest event. I checked these claims against core''s origin/fab0/54/base:
+  events.py, cli.py cmd_log, handout.py line format, apply.py merge text, inbox.py
+  latest, and the run skill. They match, including the option scoping (`--profile`
+  and `--as` not on `log`), the `run N has no events here yet` text, the `event N
+  can''t be read` text, the exit-2 usage errors and the skipped version check.; The
+  change touches only the task''s two files, plus its own ledger entry. `codespell`
+  passes, and `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core python3 scripts/check-reference.py`
+  passes (''every field of 6 pages matches its schema''). I could not run the offline
+  lychee link check because lychee isn''t installed. The new anchors `#following-a-run-from-outside-its-session`
+  and `#the-event-log` match their headings when I read them by hand.'
+verdict:
+  decision: reject
+  reasons:
+  - 'The docs CI''s Markdown lint step (`uvx pymarkdownlnt scan -r docs README.md
+    CONTRIBUTING.md`, from .github/workflows/docs.yml) fails on both new example blocks:
+    MD040, fenced code block without a language. Every other check passes and the
+    base branch lints clean, so this change is what breaks it.'
+  - 'The content does what S20 asks. It says what the log holds and where it is kept,
+    that it is local to the machine, how `fab0-resolve log` and `--follow` work with
+    example output, that `/fab0:run` shows the follow command once in the first round,
+    and that the inbox shows each run''s latest event. I checked these claims against
+    core''s origin/fab0/54/base: events.py, cli.py cmd_log, handout.py line format,
+    apply.py merge text, inbox.py latest, and the run skill. They match, including
+    the option scoping (`--profile` and `--as` not on `log`), the `run N has no events
+    here yet` text, the `event N can''t be read` text, the exit-2 usage errors and
+    the skipped version check.'
+  - The change touches only the task's two files, plus its own ledger entry. `codespell`
+    passes, and `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core python3 scripts/check-reference.py`
+    passes ('every field of 6 pages matches its schema'). I could not run the offline
+    lychee link check because lychee isn't installed. The new anchors `#following-a-run-from-outside-its-session`
+    and `#the-event-log` match their headings when I read them by hand.
+  findings:
+  - check: Tests and checks
+    message: '`uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md` fails with
+      MD040 (fenced-code-language): the `fab0-resolve log 54` example block has no
+      language (for example ```text or ```console).'
+    location: docs/explanation/execution.md:65
+  - check: Tests and checks
+    message: '`uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md` fails with
+      MD040 (fenced-code-language): the `fab0-resolve log 54 --follow` example block
+      has no language.'
+    location: docs/reference/commands.md:50
+  - check: Tests and checks
+    message: The CI link check (lychee --offline --include-fragments) was not run,
+      by the producer or by me, because lychee isn't installed. A hand check of the
+      two new fragments found nothing wrong, but CI has not confirmed it.
+    location: docs/reference/commands.md:46
+started: '2026-10-16T16:10:25Z'
+ended: '2026-10-16T16:12:42Z'

@@ -1,0 +1,89 @@
+step: implement
+attempt: 1
+executor: agent
+actor: eugenefurs
+branch: fab0/54/implement-T4
+unit: T4
+model: sonnet
+base:
+  branch: fab0/54/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+inputs:
+  spec: sha256:4c43401c933fedb45ba0b1caa2937018bc445e6957d7767d6741e55ef2e165b3
+  tasks: sha256:4744ae74db89e9f4a1260695f6f7b6cccd018a23a8de8b44c932c2a33aba912e
+  unit: sha256:77b4e8a5e4097ed840bfc87d5c851694eb36510b6cacfe0df3daf2a0eb4e3f12
+  reviews: sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+claims:
+- docs:docs/explanation/execution.md
+- docs:docs/reference/commands.md
+gate:
+  type: auto
+summary: 'T4 (S20) is done. Both docs pages now say how to see what a run is doing
+  from outside its session. I checked the wording against the engine on core''s run
+  branch `origin/fab0/54/base` (T1 to T3 merged): `events.py`, `cli.py`, the run and
+  inbox skills, and `tests/test_log.py`.
+
+
+  In `/Users/zhen/Work/Fab0/docs/.git/fab0/worktrees/54/implement-T4/docs/explanation/execution.md`:
+
+  - A new section, "Following a run from outside its session", sits before "Hand-outs
+  and briefs". It says what the log holds: hand-outs (not actions), records and gate
+  decisions, `apply` entries with a repeated report logged once, and `waiting` and
+  `blocked` states. It says what the log leaves out: a person''s gate decision as
+  an event, what an agent does inside a unit, and the brief, return data and findings.
+
+  - The same section says where the log is kept: `fab0/events/<run>.jsonl` in the
+  home repo''s git common directory. The log is local to the machine, shared by every
+  checkout, and never committed, pushed or sent to the tracker. It does not show a
+  run driven on another machine.
+
+  - It describes `fab0-resolve log <run>` with an example of its output, `--follow`
+  (about two seconds, Ctrl-C ends it with exit 0, waits for a run with no events yet),
+  the `event N can''t be read` line, and that `log` needs only the home checkout (no
+  `gh`, no wiring, `--project` from anywhere).
+
+  - It says `/fab0:run` shows the follow command once, at the start of the first round,
+  and `/fab0:inbox` shows each open run''s latest event.
+
+  - The "The inbox" section also mentions the latest event now.
+
+
+  In `/Users/zhen/Work/Fab0/docs/.git/fab0/worktrees/54/implement-T4/docs/reference/commands.md`:
+
+  - `fab0-resolve log <run>` is added to the command table. The opening sentence now
+  says `log` prints text on success.
+
+  - The `/fab0:run` and `/fab0:inbox` rows mention the follow command and the latest
+  event.
+
+  - The `apply` row gains `follow`, and the `inbox` row gains `latest`.
+
+  - A `--follow` row is added to the options table. `--profile` and `--as` no longer
+  list `log`.
+
+  - A new "The event log" subsection gives the event fields, the guarantees (read-only
+  commands never write; a failed write becomes a warning and never changes the result
+  or exit code), an example, the empty-run message `run 77 has no events here yet`,
+  and the exit-2 usage errors.
+
+  - The "Older engine" paragraph now says `log` makes no version check.
+
+
+  The example log lines are made up for the docs: the `apply: spec: merged into backend:fab0/54/base`
+  line follows the format the engine tests use, but is not copied from a real run.
+
+
+  Checks:
+
+  - `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core python3 scripts/check-reference.py`
+  passed ("every field of 6 pages matches its schema"). I had to point it at the fab0-core
+  checkout, because the default sibling path from inside the worktree doesn''t exist.
+
+  - I did not run the lychee link check, because it isn''t installed here. The two
+  new in-repo anchors are `#following-a-run-from-outside-its-session` and `#the-event-log`,
+  and both match headings I added.
+
+
+  No questions.'
+started: '2026-10-16T16:07:13Z'
+ended: '2026-10-16T16:09:27Z'
