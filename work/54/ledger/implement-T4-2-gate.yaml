@@ -1,0 +1,74 @@
+step: implement
+attempt: 2
+executor: agent
+actor: eugenefurs
+branch: fab0/54/implement-T4
+base:
+  branch: fab0/54/base
+  sha: b5546f57a9cb819139f2e56c218ddefd0475848b
+unit: T4
+model: opus
+gate:
+  type: auto
+  merge: auto
+  into: fab0/54/base
+  agent: reviewer
+  decision: approve
+summary: 'S20 is covered. docs/explanation/execution.md has a new section, ''Following
+  a run from outside its session''. It says what the event log holds and what it leaves
+  out, where the log is kept (fab0/events/<run>.jsonl in the home repo''s git common
+  dir), and that it is local to the machine. It covers `fab0-resolve log` and `--follow`
+  with example output, where `/fab0:run` shows the follow command (once, at the start
+  of the first round), and the inbox''s latest event. docs/reference/commands.md adds
+  the `log` command, the `--follow` option, `apply`''s `follow`, `inbox`''s `latest`,
+  and an ''The event log'' subsection with a `--follow` example.; The docs match the
+  engine on origin/fab0/54/base in fab0-core. These all agree with cli.py and events.py:
+  the no-events message `run 77 has no events here yet`, the unreadable-line message
+  `event N can''t be read`, the one-second poll, Ctrl-C ending with exit 0, and `log`
+  skipping wiring, tracker and version checks. So do the usage errors with exit 2,
+  the `apply: <unit>: merged into <repo>:<branch>` line format, and the run skill
+  showing `follow` before the first round''s applied list.; Scope is clean. Apart
+  from work/54/ledger entries, `git diff --name-only` shows only docs/explanation/execution.md
+  and docs/reference/commands.md.; Checks run in the worktree: `uvx pymarkdownlnt
+  scan -r docs README.md CONTRIBUTING.md` printed no findings; `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core
+  python3 scripts/check-reference.py` reported ''every field of 6 pages matches its
+  schema''; `uvx codespell` on both files found nothing. lychee was not run. I checked
+  the two new fragment links by hand: `#following-a-run-from-outside-its-session`
+  and `#the-event-log` both match headings that were added.'
+verdict:
+  decision: approve
+  reasons:
+  - S20 is covered. docs/explanation/execution.md has a new section, 'Following a
+    run from outside its session'. It says what the event log holds and what it leaves
+    out, where the log is kept (fab0/events/<run>.jsonl in the home repo's git common
+    dir), and that it is local to the machine. It covers `fab0-resolve log` and `--follow`
+    with example output, where `/fab0:run` shows the follow command (once, at the
+    start of the first round), and the inbox's latest event. docs/reference/commands.md
+    adds the `log` command, the `--follow` option, `apply`'s `follow`, `inbox`'s `latest`,
+    and an 'The event log' subsection with a `--follow` example.
+  - 'The docs match the engine on origin/fab0/54/base in fab0-core. These all agree
+    with cli.py and events.py: the no-events message `run 77 has no events here yet`,
+    the unreadable-line message `event N can''t be read`, the one-second poll, Ctrl-C
+    ending with exit 0, and `log` skipping wiring, tracker and version checks. So
+    do the usage errors with exit 2, the `apply: <unit>: merged into <repo>:<branch>`
+    line format, and the run skill showing `follow` before the first round''s applied
+    list.'
+  - Scope is clean. Apart from work/54/ledger entries, `git diff --name-only` shows
+    only docs/explanation/execution.md and docs/reference/commands.md.
+  - 'Checks run in the worktree: `uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md`
+    printed no findings; `FAB0_CORE=/Users/zhen/Work/Fab0/fab0-core python3 scripts/check-reference.py`
+    reported ''every field of 6 pages matches its schema''; `uvx codespell` on both
+    files found nothing. lychee was not run. I checked the two new fragment links
+    by hand: `#following-a-run-from-outside-its-session` and `#the-event-log` both
+    match headings that were added.'
+  findings:
+  - check: Tests and checks
+    message: The lychee link and fragment check in CI was not run locally; the new
+      anchors match their headings by inspection, but CI has not yet confirmed them.
+    location: docs/reference/commands.md:26
+  - check: Quality that matters
+    message: The text says `--follow` prints new events 'within about two seconds';
+      the spec (S12) promises 'within 2 seconds'. This is minor wording, not a contradiction.
+    location: docs/explanation/execution.md:73
+started: '2026-10-16T16:17:35Z'
+ended: '2026-10-16T16:19:36Z'
