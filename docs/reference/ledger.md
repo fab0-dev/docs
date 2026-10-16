@@ -26,8 +26,8 @@ inputs:
   spec: sha256:d93b…
 claims: ["backend:src/pricing.py", "backend:tests/test_pricing.py"]
 gate: {type: auto}
-started: 2026-10-15T10:00:00Z
-ended: 2026-10-15T10:04:12Z
+started: '2026-10-15T10:00:00Z'
+ended: '2026-10-15T10:04:12Z'
 summary: Added the pricing rules with tests; all tests pass.
 ```
 
