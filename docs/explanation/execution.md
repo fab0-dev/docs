@@ -29,9 +29,21 @@ The model doesn't route, because a deterministic program is repeatable, and can 
 4. **`record`** checks each reply and output, and writes the ledger entry. A gate's verdict is recorded the same way.
 5. **The session commits** what was recorded, with the work, on the unit's branch.
 
-Then it reports what ran, what `apply` did, and what the run is waiting for, and on whom.
+Then it reports what ran and how long each unit took, what `apply` did, and what the run is waiting for, and on whom.
 
 A run's state is `units` while work is left, `waiting` when only the merge of its pull request into the base branch is left, and `done` when that pull request is merged.
+
+## What you see during a run
+
+A run can take twenty minutes, so the session shows its progress as it goes. The engine writes the lines and works out the times; the session shows the lines exactly as they are.
+
+- **A start line for each hand-out.** After `next`, and before any agent starts, the session shows one line for each hand-out of the round: the unit, its attempt, the agent (or the command, or the tool's name), the model and the branch. For example: `implement-T2, attempt 2: implementer on opus, branch fab0/53/implement-T2`. A gate's line says it is the gate of the unit it judges. A command's line gives the command, and a tool's line gives the tool's name. An action gets no line: `apply` performs it.
+- **The agents' activity.** The agents of a round start together, in the foreground, and Claude Code shows what each one does while it works, such as the tool calls it makes. Nothing is serialized to make this visible: the agents still run in parallel.
+- **An end line for each record.** When a unit or a gate is recorded, the session shows its outcome and how long it took, from the hand-out to the record, checkout time included. For example: `implement-T2, attempt 2: verified, 4m 12s`. A unit that fails its checks reads `not verified`, with the names of the failed checks. A command adds its exit code, and a unit with questions says how many. A gate's line names the gate, as its start line does, and gives its decision (`approved`, `rejected` or `escalated`), as in `gate of implement-T2, attempt 1: rejected, 1m 5s`. For a command gate it gives the decision and the exit code. A unit or gate handed out by an older engine, or recorded without a start, says the time is unknown.
+- **What `apply` did.** At the top of each round the session shows a short list, one line for each thing `apply` did: a merge, a pull request with its link, a sync, a signal. When `apply` did nothing, it says so in one line.
+- **The end report.** When the run stops, the report gives each unit's total duration: the sum over all its attempts and gate decisions. A unit that was never recorded, or whose ledger entries have no times, shows none.
+
+The engine keeps the start and end of every attempt and every gate decision in the [ledger](../reference/ledger.md), so `fab0-resolve status` gives each unit's duration at the end of the run or any time later. Times are UTC, to the second. A duration is never negative.
 
 ## Hand-outs and briefs
 

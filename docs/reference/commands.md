@@ -6,7 +6,7 @@ The `fab0` plugin adds the engine, `fab0-resolve`, to the Bash `PATH` of every C
 
 | Command | What it does |
 |---|---|
-| `/fab0:run <run> [--pipeline P] [--profile P] [--unit U]` | Runs the pipeline for one run until it needs a person, is blocked or is done: `apply`, `next`, the hand-outs, `record`, and again. See [running a pipeline](../explanation/execution.md) |
+| `/fab0:run <run> [--pipeline P] [--profile P] [--unit U]` | Runs the pipeline for one run until it needs a person, is blocked or is done: `apply`, `next`, the hand-outs, `record`, and again. It shows the start and end lines, the agents' activity, what `apply` did and each unit's duration as it goes. See [running a pipeline](../explanation/execution.md) |
 | `/fab0:inbox [--as USER]` | Shows every open run, what waits on you, what anyone can run, and what is blocked. Read-only |
 
 The plugin also has a `fab0:github` skill, which checks and prepares GitHub for a factory. See [set up GitHub](../how-to/github-setup.md).
@@ -18,9 +18,9 @@ Every command prints one JSON object.
 | Command | What it does |
 |---|---|
 | `fab0-resolve validate` | Checks the project's `.fab0/` wiring. Prints the pipelines, steps, artifacts, and the workspace: each repository's local path and whether it is there |
-| `fab0-resolve status <run>` | Every unit of the run and its state. Read-only |
-| `fab0-resolve next <run>` | The same, and a hand-out for every unit that is ready or running and every auto gate that is due. Claims each unit it hands out |
-| `fab0-resolve record <run> <unit>` | Checks a handed-out unit's result and writes its ledger entry in the unit's checkout |
+| `fab0-resolve status <run>` | Every unit of the run and its state, and each unit's total duration (`duration` in seconds, and `took`, such as `8m 17s`): the sum over its recorded attempts and gate decisions. A unit that has none recorded, or an entry without times, has no duration. Read-only |
+| `fab0-resolve next <run>` | The same, and a hand-out for every unit that is ready or running and every auto gate that is due. Claims each unit it hands out. Each hand-out but an action's carries `line`, its start line, and records when it was handed out |
+| `fab0-resolve record <run> <unit>` | Checks a handed-out unit's result and writes its ledger entry in the unit's checkout. The result carries `started`, `ended`, `duration` and `took`, and `line`, the end line |
 | `fab0-resolve apply <run>` | Performs what is due: actions, merges, pull requests, comments, signals. Writes to git and the tracker |
 | `fab0-resolve inbox` | Every open run of the project, and what it needs from whom. Read-only |
 | `fab0-resolve --version` | The fab0 release of the engine |
