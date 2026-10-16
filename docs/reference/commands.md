@@ -19,7 +19,7 @@ Every command prints one JSON object.
 |---|---|
 | `fab0-resolve validate` | Checks the project's `.fab0/` wiring. Prints the pipelines, steps, artifacts, and the workspace: each repository's local path and whether it is there |
 | `fab0-resolve status <run>` | Every unit of the run and its state, and each unit's total duration (`duration` in seconds, and `took`, such as `8m 17s`): the sum over its recorded attempts and gate decisions. A unit that has none recorded, or an entry without times, has no duration. Read-only |
-| `fab0-resolve next <run> [--apply]` | The same, and a hand-out for every unit that is ready or running and every auto gate that is due. Claims each unit it hands out. Each hand-out but an action's carries `line`, its start line, and records when it was handed out. With `--apply` it first performs what is due, as `apply` does, then hands out from the same read of the tracker: see [`next --apply`](#next---apply) |
+| `fab0-resolve next <run> [--apply]` | The same, and a hand-out for every unit that is ready or running and every auto gate that is due. Claims each unit it hands out. Each hand-out but an action's carries `line`, its start line, and records when it was handed out. With `--apply` it first performs what is due, as `apply` does, then hands out from the last read of the tracker `apply` made: see [`next --apply`](#next---apply) |
 | `fab0-resolve record <run> <unit>` | Checks a handed-out unit's result and writes its ledger entry in the unit's checkout. The result carries `started`, `ended`, `duration` and `took`, and `line`, the end line. It reads the run's item from the tracker only when it must pick the pipeline: the unit and its context come from git and its saved hand-out, not from the tracker. The one exception is a unit that sits behind a `when` only the tracker can decide: it isn't in the run without the tracker, so `record` then reads the tracker as `status` does |
 | `fab0-resolve apply <run>` | Performs what is due: actions, merges, pull requests, comments, signals. Writes to git and the tracker |
 | `fab0-resolve inbox` | Every open run of the project, and what it needs from whom. Read-only |
@@ -27,7 +27,7 @@ Every command prints one JSON object.
 
 ### `next --apply`
 
-`fab0-resolve next <run> --apply` is one command for a round: it runs `apply`, then hands out from the evaluation `apply` ended with, so the tracker is read once for the round instead of once by each command. Like every command, it reads the tracker's current state when it starts; nothing is kept between commands.
+`fab0-resolve next <run> --apply` is one command for a round: it runs `apply`, then hands out from the evaluation `apply` ended with, so `next`'s own read of the tracker is saved. When `apply` changes nothing, the round is one pass over the tracker; when `apply` changes something, such as a merge, it reads the tracker again to see the effect, and the hand-outs come from that last read. Like every command, it reads the tracker's current state when it starts; nothing is kept between commands.
 
 Its result holds what `apply` gives (`applied`, with what it did, and `kind`) and what `next` gives (`handouts` and `units`). The `handouts` and `units` are those `next` would give if it ran right after `apply`.
 

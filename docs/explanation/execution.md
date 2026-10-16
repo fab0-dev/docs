@@ -23,7 +23,7 @@ The model doesn't route, because a deterministic program is repeatable, and can 
 
 `/fab0:run <run>` repeats these steps until nothing more is handed out:
 
-1. **`next --apply`** first performs what is due, as `apply` does: every action whose check fails, every merge a gate allows, every pull request a person or a gate needs, and every question or escalation to post. Each write checks first, so running it twice changes nothing. Then it hands out every unit that is ready, and every auto gate that is due, from the same read of the tracker, and claims each unit by creating its branch on `origin`. The round reads the tracker once, not once per command. `--unit` limits the hand-outs only.
+1. **`next --apply`** first performs what is due, as `apply` does: every action whose check fails, every merge a gate allows, every pull request a person or a gate needs, and every question or escalation to post. Each write checks first, so running it twice changes nothing. Then it hands out every unit that is ready, and every auto gate that is due, from the same read of the tracker, and claims each unit by creating its branch on `origin`. The hand-outs reuse the last read of the tracker that `apply` made, so `next` doesn't read it again. When `apply` changes nothing, the whole round is one pass over the tracker; when it changes something, such as a merge, `apply` reads the tracker afresh to see the effect, and the hand-outs come from that last read. `--unit` limits the hand-outs only.
 2. **The session** prepares the checkouts of every hand-out of the round in one turn. In the next it runs the agents of the round in parallel, each in its own worktree, runs commands in their worktree, and calls tools.
 3. **The session records and commits.** For each hand-out, in one Bash call, it writes the reply, runs `record`, which checks the reply or output and writes the ledger entry (a gate's verdict is recorded the same way), and commits what was recorded, with the work, on the unit's branch. The calls are chained, so a refused record commits nothing, and the round's calls go in one message, so one refusal doesn't stop the others.
 
@@ -31,7 +31,7 @@ A round of three agents is four turns: `next --apply`, the checkouts, the agents
 
 Then it reports what ran and how long each unit took, what `apply` did, and what the run is waiting for, and on whom.
 
-`apply` and `next` still work on their own, so a session or a person can run them one after the other: `next --apply` is the same work from one tracker pass.
+`apply` and `next` still work on their own, so a session or a person can run them one after the other: `next --apply` is the same work without `next`'s own read of the tracker.
 
 A run's state is `units` while work is left, `waiting` when only the merge of its pull request into the base branch is left, and `done` when that pull request is merged.
 
