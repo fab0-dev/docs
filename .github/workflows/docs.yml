@@ -21,12 +21,14 @@ jobs:
         run: uvx pymarkdownlnt scan -r docs README.md CONTRIBUTING.md
       - name: Spelling
         run: uvx codespell
-      # The schemas of fab0-core's main, which these pages describe ahead of the 0.7 release. Once 0.7 is
-      # released (MIGRATION.md, M8), this checks the release the fab0 marketplace points at again.
+      # The schemas of the release that the fab0 marketplace points at, which these pages describe.
       - uses: actions/checkout@v4
         with:
           repository: fab0-dev/fab0-core
           path: .fab0-core
+          fetch-depth: 0
+      - name: Check out the current fab0 release
+        run: git -C .fab0-core checkout -q "$(jq -r '.plugins[] | select(.name == "fab0") | .source.ref' .fab0-core/.claude-plugin/marketplace.json)"
       - name: Reference matches the schemas
         run: FAB0_CORE=.fab0-core python3 scripts/check-reference.py
       - name: Links (offline)

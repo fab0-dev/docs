@@ -1,6 +1,6 @@
 ---
 name: docs-style
-description: How the fab0 docs are structured, written and reviewed — the four Diátaxis page kinds, the writing style, fab0's vocabulary and status markers, the brief format of a Docs run, and the review checklist. Use when planning, writing or reviewing any page under docs/ or a brief under briefs/.
+description: How the fab0 docs are structured, written and reviewed — the four Diátaxis page kinds, the writing style, fab0's vocabulary and status markers, the brief format of a Docs run, and the review checklist. Use when planning, writing or reviewing any page under docs/, or the brief of a Docs run.
 ---
 
 # fab0 docs style
@@ -66,7 +66,7 @@ Anything the engine or `validate` refuses as not built yet is Planned.
 
 ## The brief of a Docs run
 
-The `brief` step writes `briefs/{run}.md` with exactly these sections, in this order:
+The `brief` step writes the brief, `brief.md` where its hand-out says (it is kept in the run store and reviewed in the runs repository), with exactly these sections, in this order:
 
 1. **Intent**: what the issue asks for, in two or three sentences of your own.
 2. **Readers**: who reads the result, what they already know, and what they are trying to do.
@@ -76,7 +76,7 @@ The `brief` step writes `briefs/{run}.md` with exactly these sections, in this o
 6. **Acceptance**: numbered checks (`A1`, `A2`, …), each a question a reader must be able to answer from the changed pages alone, or a fact that must hold ("every field in `step.json` appears in reference/step.md"). Tasks list the ids they meet.
 7. **Open questions**: decisions only the docs owner can make. Write "None" when there are none.
 
-The task list (`work/{run}/tasks.yaml`) splits the outline into tasks of one page or one section each, as `.fab0/schemas/tasks.json` says: `id`, `title`, `repo: home`, the `files` the task changes, `depends_on` where one page must exist before another links to it, and `acceptance`, the ids it meets. Tasks that may run in parallel touch disjoint files. Every acceptance id is met by at least one task.
+The task list (`tasks.yaml`, kept beside the brief) splits the outline into tasks of one page or one section each, as `.fab0/schemas/tasks.json` says: `id`, `title`, `repo: home`, the `files` the task changes, `depends_on` where one page must exist before another links to it, and `acceptance`, the ids it meets. Tasks that may run in parallel touch disjoint files. Every acceptance id is met by at least one task.
 
 ## Review checklist
 

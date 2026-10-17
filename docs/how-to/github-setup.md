@@ -59,13 +59,13 @@ The runs repository holds what runs produce for themselves: each run's ledger, i
 
 One runs repository serves every factory of a product. Each factory keeps its runs under its own `store.project`, which defaults to the home repository's name, so their run numbers don't collide. If the product has one already, only name it in `fab0.yaml` and check it: steps 4 and 5 below.
 
-1. Create it, private:
+1. Create it:
 
    ```bash
    gh repo create acme/product-runs --private --description "fab0 run store"
    ```
 
-   An empty repository is fine: the first record starts `main`.
+   An empty repository is fine: the first record starts `main`. GitHub allows the ruleset of the next step on a private repository only on a paid plan. On a free plan, make the runs repository public (`--public`) to keep the ruleset. A public one holds nothing your public product repositories don't. Keep it private without a ruleset only if the runs must stay private, since then nothing stops a person's force push.
 
 2. Add a ruleset that blocks force pushes to `main` and its deletion, so the store's history stays append-only. Write it to `ruleset.json`:
 
