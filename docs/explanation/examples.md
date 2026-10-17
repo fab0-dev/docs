@@ -6,7 +6,7 @@ fab0 ships no factory, but it shows how to build one. [`fab0-dev/fab0-examples`]
 
 | Example | What it shows |
 |---|---|
-| `story` | Delivery. A product owner approves a spec and a task list. Agents implement the tasks in parallel on sub-branches, and another agent reviews each one, which `apply` then merges into the run branch. A person merges the finished run into `main` |
+| `story` | Delivery. A product owner approves a spec and a task list, which are kept in the run store and reviewed in a pull request of the runs repository. Agents implement the tasks in parallel on sub-branches, and another agent reviews each one, which `apply` then merges into the run branch. A person merges the finished run into `main` |
 | `triage` | Work that isn't code. An agent classifies a bug report, a command checks the classification, and actions label it, escalate it when it is severe, and comment, all in the tracker, with no pull requests |
 
 Each example's README says what it does, what to copy where, and how to set up GitHub and Claude Code for it.

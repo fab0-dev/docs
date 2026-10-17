@@ -4,11 +4,10 @@ A piece of state that steps pass on. Its kind says where it lives, and how it is
 
 ```yaml
 artifact: tasks
-kind: file
-file: {repo: home, path: "work/{run}/tasks.yaml", format: yaml}
+kind: store
+store: {format: yaml}
 schema: .fab0/schemas/tasks.json
 elements: {id: id, title: title, repo: repo, after: depends_on, paths: files}
-keep: run
 ```
 
 ## Top level
@@ -16,15 +15,17 @@ keep: run
 | Field | Required | Meaning |
 |---|---|---|
 | `artifact` | yes | Its name, the same as the file's |
-| `kind` | yes | `file`, `issue`, `pr`, `tool` or `none`. The field of the same name says where it is; `none` has none |
+| `kind` | yes | `file` (in a product repository), `store` (in the run store), `issue`, `pr`, `tool` or `none`. The field of the same name says where it is; `none` has none |
 | `file` | for `file` | See below |
+| `store` | for `store` | See below |
 | `issue` | for `issue` | See below |
 | `pr` | for `pr` | See below |
 | `tool` | for `tool` | See below |
-| `schema` | no | A project-relative JSON Schema, for `yaml` and `json` files |
+| `schema` | no | A project-relative JSON Schema, for `yaml` and `json` files and store artifacts |
 | `elements` | no | For a list used by `foreach`: which field of an element holds what. See below |
 | `verify` | no | Checks of the file a step writes. See below |
-| `keep` | no | For files: `durable` (default) stays in the result; `run` is removed by `git.remove-run-artifacts`, unless its path has `{unit}` or its repository is the element's |
+
+fab0 0.6's `keep` is gone: `validate` refuses it, with a hint. A working file, such as a task list, is `kind: store` instead, so it never reaches a product repository and nothing has to remove it.
 
 ## `file`
 
@@ -33,6 +34,18 @@ keep: run
 | `repo` | yes | A repository name, or `unit.<field>` |
 | `path` | yes | A file or directory, with `{run}` and `{unit}` filled in |
 | `format` | no | `yaml` and `json` are parsed, and `markdown` is read by section. Any other value is opaque |
+
+## `store`
+
+A file a run produces for itself, kept in the run store and never in a product repository: see [the `store` block](project.md#store). The step writes it in its **outbox**, a folder outside every repository that the brief names. `record` checks it like any output, then keeps it in the run store as an object named by its hash, so each version is immutable. A file in the outbox that is no output of the step is a finding.
+
+| Field | Required | Meaning |
+|---|---|---|
+| `format` | yes | Lowercase letters and digits. `yaml` and `json` are parsed, and `markdown` is read by section; any other value is opaque. It also names the file's extension: `markdown` is `.md`, `text` is `.txt`, any other format is its own name. The step writes `<artifact>.<extension>`, such as `tasks.yaml` |
+
+A store artifact's latest version is the output of the most recent attempt that wrote it and passed its checks: per element for a `foreach` unit, else the run's. Briefs show it, `foreach` reads its elements from it, conditions read it, and staleness hashes it. A run has one latest version, not one per branch, so every unit that reads it sees a new version at once.
+
+When a step with a `human` gate decided by a pull request writes only store artifacts and no repository, a person reviews them in a pull request of the runs repository: see [gates](../explanation/gates.md).
 
 ## `issue`
 
@@ -48,7 +61,7 @@ A part of a tracker item, read and never written by a step.
 
 | Field | Required | Meaning |
 |---|---|---|
-| `of` | no | `run` (default): the run's pull request. `unit`: the current unit's pull requests |
+| `of` | no | `run` (default): the run's pull request into the base branch, in the home repo. `unit`: the current unit's pull requests. For a unit reviewed in the runs repository, they are its review pull requests there |
 | `part` | yes | `body`, `reviews` (reviews that ask for changes or comment, and people's conversation comments, from every pull request of the unit's branch, oldest first; comments fab0 posts, whose body starts with `<!-- fab0:`, are left out, and a merged pull request's stop counting), or `diff` |
 
 ## `tool`
@@ -80,5 +93,5 @@ Each check is one of:
 | Field | Meaning |
 |---|---|
 | `sections` | Markdown headings the file must have |
-| `lint` | A shell command with `{path}`, run in the unit's worktree. A non-zero exit fails |
+| `lint` | A shell command with `{path}`, run in the unit's worktree, or in its outbox for a store artifact. A non-zero exit fails |
 | `script` | A program on `PATH`, given the file's path. A non-zero exit fails |

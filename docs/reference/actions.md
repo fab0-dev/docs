@@ -14,29 +14,32 @@ Arguments may use the [step placeholders](step.md#placeholders), such as `{run.t
 
 | Actions | Where |
 |---|---|
-| `git.run-branch`, `git.sync-base`, `git.remove-run-artifacts`, `pr.open-run`, `pr.ready`, `pr.merge` | The pipeline's `onStart` or `onEnd`: they act on the whole run |
+| `git.run-branch`, `git.sync-base`, `pr.open-run`, `pr.ready`, `pr.merge` | The pipeline's `onStart` or `onEnd`: they act on the whole run |
 | `tracker.child.sync` | A `foreach`'s `onStart` |
 | `tracker.child.close` | A `foreach`'s `onEnd` |
 | Every other action | Anywhere: `onStart`, `onEnd`, or as a step |
 
 `git.*` and `pr.*` actions do nothing under `branching: flat`, which has no run branch. `tracker.*` actions need a tracker in `fab0.yaml`.
 
+fab0 0.6's `git.remove-run-artifacts` is gone, and `validate` refuses it with a hint: a working file is a `store` artifact, which never reaches a product repository, so nothing is left to remove.
+
 ## git
 
 | Action | Arguments | Done when |
 |---|---|---|
-| `git.run-branch` | none | The run branch exists in every repository the run writes. `apply` creates it from the base branch and pushes it |
+| `git.run-branch` | none | The run branch exists in every repository the run writes. `apply` creates it at the base branch's head, with no commit, and pushes it |
 | `git.sync-base` | none | The run branch contains the latest base branch, in every repository where it has work. `apply` merges the base in; a conflict stops `apply` and names the files |
-| `git.remove-run-artifacts` | none | No `keep: run` file artifact is left on the run branch, except per-element ones (a path with `{unit}`, or the element's repository), which stay. `apply` commits their removal |
 
 ## pr
 
 | Action | Arguments | Done when |
 |---|---|---|
-| `pr.open-run` | `draft`: `true` to open it as a draft | The run's pull request into the base branch exists in the home repo. Its body closes the run's item. A pull request a person marked ready isn't turned back into a draft |
-| `pr.ready` | none | Every repository whose run branch has work has a run pull request, and none is a draft |
+| `pr.open-run` | `draft`: `true` to open it as a draft | Every repository whose run branch has work the base branch lacks has had a run pull request into the base branch. A repository the run hasn't changed gets none, since GitHub opens no pull request without a change. A run branch usually gets work after the run starts, so `apply` checks this action again after its last round and opens the pull request then. One a person closed stays closed, and one a person marked ready isn't turned back into a draft |
+| `pr.ready` | none | Every repository whose run branch has work has an open run pull request, and none is a draft. `apply` opens the missing ones, a closed one included, and marks drafts ready |
 | `pr.merge` | none | The run branch is merged into the base branch everywhere. Allowed only when `git.auto_merge` has `into: [base]` and `allow_base: true`; otherwise a person merges the run's pull request |
-| `pr.comment` | `body` | The run's pull request has a comment containing `body` |
+| `pr.comment` | `body` | The run's pull request in the home repo has a comment containing `body` |
+
+Every run pull request's body closes the run's item, `Closes <owner>/<repo>#<run>`, in whichever repository it is.
 
 ## tracker
 

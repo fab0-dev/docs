@@ -16,7 +16,7 @@ git:
   branching: run
   auto_merge: {into: [run]}
 parallel: {max: 3, cross_run: warn}
-ledger: {path: "work/{run}/ledger"}
+store: {github: acme/product-runs}
 models:
   claude-code: {deep: opus, balanced: sonnet, fast: haiku}
 profiles:
@@ -34,7 +34,7 @@ pipelines: [story]
 | `tracker` | no | Where runs, human decisions and dependencies are tracked. Without it, a factory has manual triggers only |
 | `git` | no | The git workflow |
 | `parallel` | no | Limits and policy for parallel units |
-| `ledger` | no | Where ledger entries go |
+| `store` | yes | The run store: the runs repository that holds what runs produce for themselves. See below |
 | `pipelines` | yes | The names of the pipelines, each a file in `.fab0/pipelines/` |
 | `models` | yes | Model classes, per harness |
 | `profiles` | no | Changes to this file, chosen at run time |
@@ -88,12 +88,19 @@ A pipeline may override `branching` and `auto_merge` in its own `git`.
 | `max` | no limit | Units of one run that may run at once |
 | `cross_run` | `warn` | What an overlap of claims with another open run does: `warn`, or `block` |
 
-## `ledger`
+## `store`
 
-| Field | Default | Meaning |
+The run store is a git repository, the **runs repository**, that holds what runs produce for themselves: each run's ledger, its store artifacts, and the review pull requests of units whose outputs are all in the store. Your product repositories then receive only product changes. One runs repository serves every factory of a product, each in its own folder, `runs/<project>/`, so their run ids never collide. Give `github`, `path`, or both.
+
+| Field | Required | Meaning |
 |---|---|---|
-| `path` | `work/{run}/ledger` | Where ledger entries go, in the repository a unit ran in. Must contain `{run}` |
-| `branch` | | A branch for the ledger of runs that open no pull request, such as a pipeline whose artifacts all live in the tracker. It is pushed, never merged. Required when no step of a pipeline writes files |
+| `github` | one of the two | The runs repository on GitHub, as `owner/name`, for example `acme/product-runs`. The engine reaches it over the same protocol as the home repo's `origin` |
+| `project` | no | This factory's folder in the runs repository, `runs/<project>/`. Default: the home repository's name on GitHub, so `acme/docs` keeps its runs under `runs/docs/` |
+| `path` | one of the two | A checkout of the runs repository, relative to the home repo. Without it, the engine keeps its own clone in `<home git dir>/fab0/store`. With `path` and no `github`, the store is a local repository, as in tests |
+
+`validate` checks that the store can be reached: through its checkout's `origin`, else through `github`. A store it can't reach is invalid wiring. A store with no remote is local, and one with no checkout yet is started by its first write. The `fab0:github` skill creates the runs repository and its ruleset; see [set up GitHub](../how-to/github-setup.md).
+
+fab0 0.6's `ledger` block (`path` and `branch`) is gone: `validate` refuses it, with a hint to use `store`.
 
 ## `models`
 

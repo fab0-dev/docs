@@ -27,7 +27,7 @@ owner: repo-owner
 | `skills` | no | Skills the agent loads first: `plugin:skill`, or a skill in `.claude/skills/` |
 | `instructions` | no | Extra text for the agent's brief, for an agent that isn't written for this step |
 | `inputs` | no | Artifacts the step reads, or `unit` (the current element of a `foreach`) |
-| `outputs` | no | Artifacts the step writes |
+| `outputs` | no | Artifacts the step writes: a `file` artifact in a repository it writes, or a `store` artifact in its outbox, outside every repository |
 | `repos` | no | `write`: the repositories the step may change, or `unit.<field>` for the element's repository. `read`: the repositories it may read, or `all` |
 | `paths` | no | The step's claim: a list of globs (`{run}` and `{unit}` are filled in), or `unit.<field>` for the element's own list. Without it, a step claims every file of the repositories it writes |
 | `return` | no | What the reply may or must carry beyond `summary`: `questions` (`optional` or `required`), and `schema`, a project-relative JSON Schema the reply's `data` must match |

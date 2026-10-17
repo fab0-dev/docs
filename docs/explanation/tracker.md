@@ -10,7 +10,7 @@ Git carries the work; the tracker carries what people decide. fab0 reads the tra
 | An item's body, title, comments or a board field | Inputs, as `issue` artifacts, and `when` conditions |
 | Sub-issues | Each `foreach` element's item; other sub-issues hold back the run's end |
 | Blocked-by relations | Dependencies. See [dependencies and blocking](dependencies.md#dependencies-in-the-tracker) |
-| Pull requests: their state, reviews, diff and required checks | Gates, inputs as `pr` artifacts, and merges |
+| Pull requests: their state, who merged them, reviews, diff and required checks | Gates, inputs as `pr` artifacts, and merges. Who merged a review pull request decides whether its gate passes |
 | Labels on the run's item | Human gates decided by a label |
 | The logged-in user | The actor in the ledger, and the claim on a unit |
 
@@ -20,7 +20,7 @@ Every write is an [action](../reference/actions.md), or part of `apply`'s merges
 
 - labels, assignees, comments, board fields, and closing an item;
 - a sub-issue per `foreach` element, with blocked-by relations from the elements' `after`, and closing them at the end;
-- the run's pull request and each unit's, their draft state, and comments with questions and escalations;
+- the run's pull request in each repository whose run branch has work, each unit's pull request, and a unit's review pull request in the runs repository; their draft state; and comments with questions and escalations, on the run's item when a unit has no pull request, and when someone outside a gate's owner role merged a review pull request;
 - the signal field on the board, when the project names one.
 
 Each write checks first, so `apply` can run as often as you like. A person's own changes stand: a pull request someone marked ready isn't turned back into a draft, and a blocked-by someone removed isn't put back.

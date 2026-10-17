@@ -21,7 +21,6 @@ steps:
       - tracker.child.close: {type: Task}
 onEnd:
   - git.sync-base
-  - git.remove-run-artifacts
   - pr.ready
 ```
 
@@ -47,7 +46,7 @@ A step is one piece of work, done by exactly one executor:
 
 A step declares what it reads (`inputs`), what it writes (`outputs`), the repositories it may change and read (`repos`), and the paths it claims (`paths`). An agent step also names a model class and the skills the agent loads.
 
-Steps pass state through [artifacts](artifacts-and-ledger.md), or through the `data` field of their reply. A later step reads `data` in its `with` arguments as `{<step>.<field>}`. Other placeholders are `{run}`, `{run.<field>}` (a field of the run's tracker item), `{unit}` and `{unit.<field>}` (the current element of a `foreach`).
+Steps pass state through [artifacts](artifacts-and-ledger.md), or through the `data` field of their reply. A later step reads `data` in its `with` arguments as `{<step>.<field>}`. Other placeholders are `{run}`, `{run.<field>}` (a field of the run's tracker item), `{unit}` and `{unit.<field>}` (the current element of a `foreach`). An auto gate's `command` may also use `{attempt}`: the path of a YAML file that holds the ledger entry of the attempt it judges, so a project's own check can read the reply's `data`. The gate's own ledger entry keeps `{attempt}`, not the path, because the path is one machine's.
 
 ## Operators
 
@@ -61,7 +60,7 @@ A block may have a gate of its own and an `id`. A `foreach` or `parallel` block 
 
 ## Units
 
-A **unit** is a step as it runs: one step, or one step for one element of a `foreach`. Its id names its branch and its ledger files: `implement-T2` is the step `implement` for element `T2`. Inside a gated block, the block's id comes first: `pages--write-intro`.
+A **unit** is a step as it runs: one step, or one step for one element of a `foreach`. Its id names its branch and its ledger entries: `implement-T2` is the step `implement` for element `T2`. Inside a gated block, the block's id comes first: `pages--write-intro`.
 
 Every unit has a state that the engine works out on each call: `ready`, `running`, `waiting` on a gate, `blocked` with a reason, or `done`. See [dependencies and blocking](dependencies.md).
 
@@ -69,20 +68,22 @@ Every unit has a state that the engine works out on each call: `ready`, `running
 
 Every pipeline has `onStart` and `onEnd`, even if empty, because a run without a start and an end leaves branches and items behind. They hold [actions](../reference/actions.md):
 
-- `onStart` prepares the run, for example its branch, its draft pull request and a label.
-- `onEnd` finishes it, for example bringing in the base branch, removing working files and marking the pull request ready.
+- `onStart` prepares the run, for example its branch, its draft pull request and a label. `pr.open-run` opens a repository's run pull request only once its run branch has work, because GitHub opens no pull request without a change. `apply` checks it again during the run, so a repository the run changes later gets its pull request then.
+- `onEnd` finishes it, for example bringing in the base branch and marking the pull request ready. Nothing needs removing: what a run produces for itself is in the run store, not in a repository.
 
 A `foreach` or `parallel` block may have its own: a `foreach`'s `onStart` typically creates a tracker item per element, and its `onEnd` closes them.
 
-An action is done when its check passes, because its result is a fact in git or the tracker. So it writes no record, and performing it twice changes nothing. A pipeline's `onStart` stops being checked once the run has recorded work: what it did may be undone on purpose later, for example a working label its `onEnd` removes.
+An action is done when its check passes, because its result is a fact in git or the tracker. So it writes no record, and performing it twice changes nothing. A pipeline's `onStart` stops being checked once the run has recorded work: what it did may be undone on purpose later, for example a working label its `onEnd` removes. `pr.open-run` is the exception: `apply` checks it again, and opens only pull requests that never existed, so one a person closed stays closed.
 
 ## What `validate` refuses
 
 `fab0-resolve validate` checks the whole factory before anything runs: every file against its schema, and the connections between them. It refuses:
 
-- a step used twice in one pipeline, because its ledger files would collide;
+- a step used twice in one pipeline, because its ledger entries would collide;
 - `after` outside a `parallel` block, because a sequence already orders its steps;
 - a `{<step>.<field>}` placeholder that doesn't point at an earlier agent or tool step;
-- an action in the wrong place, such as a run-wide action inside a block.
+- an action in the wrong place, such as a run-wide action inside a block;
+- a run store it can't reach, because every run records there;
+- `ledger`, `keep` and `git.remove-run-artifacts` from fab0 0.6, with a hint that says what replaces each.
 
 It also refuses, until a factory needs them, `call`, a pipeline's `inputs` and `outputs`, and a `foreach` inside a `foreach`.
