@@ -40,6 +40,12 @@ A run may write several repositories, each a sibling checkout named in `fab0.yam
 
 Branches move forward only. A unit's branch is brought up to date by merging its parent into it, never by a rebase. `apply` changes branches through git plumbing, or in the branch's own checkout only when that checkout is clean, so nobody's work moves under them.
 
+## When GitHub's branch is ahead
+
+A person who merges a unit's pull request on GitHub moves that branch on GitHub past the local copy. When `apply` pushes a branch, run or unit, and GitHub's copy already contains every commit of the local one, it doesn't push. It brings the local branch forward to GitHub's commit and goes on, so the run doesn't stop for a branch nobody has to move. It compares with the `origin/<branch>` ref the session's fetch left, so a branch that moves on GitHub after that fetch isn't seen. If the branch is checked out with uncommitted changes, the checkout stays as it is, the local branch stays behind, and `apply` goes on: it reads the fresher of the local and GitHub's copy anyway.
+
+A branch that has diverged, where each side has a commit the other lacks, still stops the run. `apply` fails with an error that names the repository and the branch, and moves neither side. Someone must bring the two together by hand.
+
 ## Claiming a unit
 
 Two machines must never run the same attempt of a unit. When `next` hands an attempt out, it first writes a claim for it in the run store, a create-only fact naming who took it and from which checkout, and pushes it. The first claim pushed stands. A machine whose claim lost the race, or that finds another checkout's claim, doesn't hand the unit out: the unit shows as `running` with `claimed: elsewhere`. Every attempt is claimed, so two machines can't take the same rework either. Assignment in the tracker still says whose turn a human gate is.
