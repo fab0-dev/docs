@@ -7,10 +7,10 @@ Units run in parallel as far as their dependencies allow, and the engine respect
 | State | Meaning |
 |---|---|
 | `ready` | It can start now. `next` hands it out |
-| `running` | It was handed out, and nothing is recorded yet. `next` hands it out again, to the same checkout |
+| `running` | It was handed out, and nothing is recorded yet. `next` hands it out again, to the same checkout. With the reason `claimed: elsewhere`, another machine claimed the attempt, and it isn't handed out here |
 | `waiting` | It is recorded and waits on its gate: `merge` (for `apply`), `gate` (an auto gate is due), `human`, `questions` (a person answers), or `escalated` |
 | `blocked` | It can't start, and a reason says why. See below |
-| `done` | Its work is merged into the branch it targets. For an action, its check passes |
+| `done` | The commits its latest attempt recorded (`heads`) are in the branch it merges into, or GitHub reports its pull request merged at those commits, as after a squash merge. An attempt that committed nothing is done when its gate passes; for one reviewed in the runs repository, when its owner merges the review pull request. For an action, its check passes |
 
 A gated block is `open` while its units are under way.
 
@@ -54,7 +54,7 @@ Some dependencies can't be satisfied, and the engine reports them instead of gue
 
 ## Other runs
 
-Two open runs may want the same files. A unit's claims hold until its work reaches the base branch. When a ready unit's claims overlap another open run's, it carries a warning, or with `parallel.cross_run: block` it waits.
+Two open runs may want the same files. The engine reads other runs' claims from the run store: the claimed paths of each unit's latest attempt, recorded in the ledger. A unit's claims hold until its commits reach the base branch. When a ready unit's claims overlap another open run's, it carries a warning, or with `parallel.cross_run: block` it waits.
 
 ## Signals on the board
 

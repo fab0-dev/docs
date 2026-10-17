@@ -1,6 +1,6 @@
 # Set up GitHub
 
-This guide prepares GitHub for a factory: the login, the issue types and labels its pipelines use, an optional board, and the base branch. Claude Code can check all of it for you: ask it to set up GitHub for fab0, and the `fab0:github` skill goes through these steps.
+This guide prepares GitHub for a factory: the login, the issue types and labels its pipelines use, an optional board, the base branch, and the runs repository. Claude Code can check all of it for you: ask it to set up GitHub for fab0, and the `fab0:github` skill goes through these steps.
 
 ## 1. Log in
 
@@ -53,6 +53,58 @@ Protect the base branch with a ruleset that requires a pull request, with your t
 
 Leave `fab0/**` branches unprotected: `apply` merges approved units into run branches by pushing a merge commit, which a protected branch would refuse. If your CI runs on pull requests into any branch, unit pull requests show their checks, and agents and people can read them. `apply` waits only for checks GitHub reports as required, so on unprotected run branches it doesn't wait. The base branch's required checks still gate the run's pull request.
 
-## 6. Sub-issues and relations
+## 6. The runs repository
+
+The runs repository holds what runs produce for themselves: each run's ledger, its working files, and the review pull requests of units whose outputs are all in the run store. `store.github` in `fab0.yaml` names it. Your product repositories then receive only product changes.
+
+One runs repository serves every factory of a product. Each factory keeps its runs under its own `store.project`, which defaults to the home repository's name, so their run numbers don't collide. If the product has one already, only name it in `fab0.yaml` and check it: steps 4 and 5 below.
+
+1. Create it, private:
+
+   ```bash
+   gh repo create acme/product-runs --private --description "fab0 run store"
+   ```
+
+   An empty repository is fine: the first record starts `main`.
+
+2. Add a ruleset that blocks force pushes to `main` and its deletion, so the store's history stays append-only. Write it to `ruleset.json`:
+
+   ```json
+   {"name": "fab0 run store", "target": "branch", "enforcement": "active",
+    "conditions": {"ref_name": {"include": ["refs/heads/main"], "exclude": []}},
+    "rules": [{"type": "deletion"}, {"type": "non_fast_forward"}]}
+   ```
+
+   ```bash
+   gh api repos/acme/product-runs/rulesets -X POST --input ruleset.json
+   ```
+
+   Don't require pull requests or checks on it: the engine pushes to `main` directly.
+
+3. Give write access to everyone in `people`, one login or a team at a time:
+
+   ```bash
+   gh api -X PUT repos/acme/product-runs/collaborators/po-user -f permission=push
+   ```
+
+   Everyone who runs fab0 pushes there with their own `gh` login, so each record names who made it. The owner of a human gate merges its review pull requests there, and only a merge by someone in that role approves the unit.
+
+4. Name it in `fab0.yaml`:
+
+   ```yaml
+   store: {github: acme/product-runs}
+   ```
+
+5. Check that it can be reached:
+
+   ```bash
+   fab0-resolve validate
+   ```
+
+   `validate` reads the runs repository with `git ls-remote`, and refuses the wiring when it can't.
+
+The `fab0:github` skill checks all of this, and creates the runs repository when you ask.
+
+## 7. Sub-issues and relations
 
 Sub-issues and blocked-by relations need nothing beyond issues being enabled. fab0 reads them on every call; see [dependencies and blocking](../explanation/dependencies.md#dependencies-in-the-tracker).

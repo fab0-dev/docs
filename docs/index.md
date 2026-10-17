@@ -2,7 +2,7 @@
 
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-These pages describe the latest release of the `fab0` plugin.
+These pages describe fab0 0.7, ahead of its release. 0.7 keeps what a run produces for itself, its ledger and its working files, in a run store, so your repositories receive only product changes. The latest release, 0.6.5, still keeps the ledger in the product repositories; until 0.7 is released, use these pages with the `fab0-core` `main` branch.
 
 ## Status markers
 
@@ -15,10 +15,10 @@ These pages describe the latest release of the `fab0` plugin.
 
 - [What fab0 is](explanation/overview.md): building blocks, principles, glossary
 - [Pipelines and steps](explanation/pipelines.md): triggers, executors, operators, units, lifecycle actions
-- [Gates](explanation/gates.md): `none`, `auto` and `human`, questions, and who merges
+- [Gates](explanation/gates.md): `none`, `auto` and `human`, review pull requests, questions, and who merges
 - [Branches and merges](explanation/branching.md): run branches, claims, conflicts
 - [Dependencies and blocking](explanation/dependencies.md): unit states, and the tracker's relations
-- [Artifacts and the ledger](explanation/artifacts-and-ledger.md): kinds, staleness, checks, the record
+- [Artifacts and the ledger](explanation/artifacts-and-ledger.md): kinds, the run store, staleness, checks, the record
 - [Running a pipeline](explanation/execution.md): the engine, the session, and the loop
 - [The tracker](explanation/tracker.md): what fab0 reads from GitHub, and what it writes
 - [Examples](explanation/examples.md): ready-made factories, and how to take one
@@ -27,7 +27,7 @@ These pages describe the latest release of the `fab0` plugin.
 
 - [Build your first factory](how-to/build-your-first-factory.md)
 - [Use an example](how-to/use-an-example.md)
-- [Set up GitHub](how-to/github-setup.md)
+- [Set up GitHub](how-to/github-setup.md), with the runs repository
 - [Choose how a pipeline uses git](how-to/choose-git-workflow.md)
 
 ## Reference

@@ -4,17 +4,17 @@ A run works on its own branch. Each unit works on a sub-branch of it, in its own
 
 ## Run branching (default)
 
-- `onStart` creates the **run branch**, `fab0/<run>/base`, in every repository the run writes, and opens the run's pull request into the base branch, usually as a draft.
-- Each unit works on `fab0/<run>/<unit>`, cut from its parent: the run branch, or the branch of a gated block around it. Its pull request targets that parent.
+- `onStart` creates the **run branch**, `fab0/<run>/base`, in every repository the run may write, at the base branch's head and with no commit.
+- Each unit works on `fab0/<run>/<unit>`, cut from its parent's head: the run branch, or the branch of a gated block around it. Its pull request targets that parent.
 - A unit's inputs are read at its parent's head, and its ledger entry records that commit. So a unit sees exactly what was merged before it.
+- A repository gets the run's pull request into the base branch, usually as a draft, once its run branch has work the base branch lacks. Each run pull request closes the run's tracker item.
 - When a unit is accepted, its branch merges into its parent: by `apply` for gate `none`, for `merge: auto`, and for a human gate decided by a label; by a person merging its pull request otherwise.
-- At the end, the run's pull request carries everything into the base branch. A person merges it.
+- At the end, the run's pull requests carry everything into the base branch. A person merges them.
 
 ```text
 main
 └── fab0/412/base                 the run; its pull request into main is the result
-    ├── fab0/412/spec             a unit; its pull request targets fab0/412/base
-    ├── fab0/412/implement-T1
+    ├── fab0/412/implement-T1     a unit; its pull request targets fab0/412/base
     └── fab0/412/implement-T2
 ```
 
@@ -24,13 +24,17 @@ With `branching: flat`, there is no run branch: each unit's pull request targets
 
 A person merges each unit into the base branch, unless `git.auto_merge` allows the base branch (`into: [base]` with `allow_base: true`). Then `apply` merges gate `none`, label-decided and `merge: auto` units itself. The default holds back because the base branch is the project's, and fab0 doesn't push to it unless the project says it may. Units inside a gated block merge into the block's branch, not the base branch, so this doesn't hold them. To choose, see [choose how a pipeline uses git](../how-to/choose-git-workflow.md).
 
-## Runs that write no files
+## No empty commits, no empty pull requests
 
-A pipeline whose steps write no files, such as one that works only in the tracker, opens no pull requests at all. Whatever its branching, it keeps its ledger on `ledger.branch`, which `apply` pushes and nothing merges, because the record must live in git, and the base branch takes only work that a person or the merge policy accepts. The ledger branch belongs to this case, not to `flat`: under `run` branching such a pipeline still needs the run branch.
+A product repository receives only product changes. Branches are created with no commit, and a unit's branch gets one only when `record` commits what the unit changed. `record` pushes the branch then, and `apply` pushes it before it merges it or opens its pull request. A branch with no work stays on the machine that made it.
+
+So a repository the run only reads gets no commit and no pull request, and a step that writes no repository, such as one that works only in the tracker, leaves nothing in any product repository. Its record is in the run store, like every other unit's. It still works on a branch of the home repository, which never gets a commit, because it reads its parent's state there.
+
+This holds because GitHub opens no pull request without a change, and a commit that changes nothing only adds noise to a product's history.
 
 ## Several repositories
 
-A run may write several repositories, each a sibling checkout named in `fab0.yaml`. Each gets the same run branch name and its own run pull request. The run is done when every one of them is merged.
+A run may write several repositories, each a sibling checkout named in `fab0.yaml`. Each gets the same run branch name, and its own run pull request once its run branch has work. The run is done when every run branch with work is merged.
 
 ## No force pushes, ever
 
@@ -38,7 +42,9 @@ Branches move forward only. A unit's branch is brought up to date by merging its
 
 ## Claiming a unit
 
-Two machines must never run the same unit. When `next` hands a unit out, it claims it by creating its branch on `origin`, create-only, with an empty commit that says who took it. If the push is refused, another machine has the unit, and it isn't handed out. Assignment in the tracker still says whose turn a human gate is.
+Two machines must never run the same attempt of a unit. When `next` hands an attempt out, it first writes a claim for it in the run store, a create-only fact naming who took it and from which checkout, and pushes it. The first claim pushed stands. A machine whose claim lost the race, or that finds another checkout's claim, doesn't hand the unit out: the unit shows as `running` with `claimed: elsewhere`. Every attempt is claimed, so two machines can't take the same rework either. Assignment in the tracker still says whose turn a human gate is.
+
+The claim is a fact rather than a branch. Two machines that push the same new branch at the same commit both succeed, so a branch could only be a claim with a commit of its own, and that commit would be an empty one in the product's history.
 
 ## Conflicts and failing checks
 
@@ -49,4 +55,4 @@ Before a unit merges, `apply` tests whether its branch merges cleanly into its p
 
 ## The final merge
 
-The run's pull request is the last gate, and it is human. `onEnd` brings the base branch into the run branch, so the pull request shows the result as it will land, and marks it ready. Merging it ends the run.
+The run's pull requests are the last gate, and it is human. `onEnd` brings the base branch into each run branch with work, so each pull request shows the result as it will land, opens the pull request of a repository that has none yet, and marks each one ready. Merging them ends the run.

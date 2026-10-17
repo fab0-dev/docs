@@ -6,7 +6,7 @@ This guide sets up a project with a factory from [`fab0-dev/fab0-examples`](http
 
 | Example | Use it for |
 |---|---|
-| `story` | Delivering a Story as a spec, then parallel tasks that agents implement, review and merge into the run branch |
+| `story` | Delivering a Story as a spec and a task list, which the product owner reviews in the runs repository, then parallel tasks that agents implement, review and merge into the run branch |
 | `triage` | Work done in the tracker only, such as classifying bug reports |
 
 ## 2. Copy it
@@ -23,7 +23,7 @@ mkdir -p .claude/agents .claude/skills .claude/hooks && cp ../fab0-examples/stor
 
 Merge the example's `claude-settings.json` into `.claude/settings.json`, or copy it there in a new project. It declares the `fab0` marketplace, enables the plugin, denies merges and force pushes to the model, and installs the merge guard.
 
-Keep the line in each copied file that names the example and its release, such as `# from fab0-dev/fab0-examples story--v0.2.0`, so you can compare with a later release.
+Keep the line in each copied file that names the example and its release, such as `# from fab0-dev/fab0-examples story--v0.3.0`, so you can compare with a later release.
 
 ## 3. Make it yours
 
@@ -31,13 +31,16 @@ Edit `.fab0/fab0.yaml` where it says `EDIT`:
 
 - `repos`: this repository as `home`, and every sibling repository the factory may change, each with its GitHub name and the role that owns it;
 - `people`: the GitHub users in each role;
-- `tracker`: the organisation or user that owns the issues, and a GitHub Project if you want a board.
+- `tracker`: the organisation or user that owns the issues, and a GitHub Project if you want a board;
+- `store`: the runs repository, `{github: <owner>/<name>}`. It holds what runs produce for themselves: their ledger, and working files such as the `story` example's spec and task list. If your product already has one for another factory, name the same repository: each factory keeps its runs apart under `store.project`, which defaults to the home repository's name.
 
 Change anything else you like: the agents, the formats, the gates. The files are yours.
 
+The `story` example keeps its spec in the run store, and reviews it in a pull request of the runs repository. To keep the spec in your repository instead, follow [keep the spec in a repository](https://github.com/fab0-dev/fab0-examples/tree/main/story#keep-the-spec-in-a-repository) in the example's README.
+
 ## 4. Set up GitHub
 
-Create the issue types, labels and board fields the example uses, and protect the base branch. See [set up GitHub](github-setup.md).
+Create the issue types, labels and board fields the example uses, create the runs repository if the product has none, and protect the base branch. See [set up GitHub](github-setup.md).
 
 ## 5. Set up Claude Code
 
@@ -55,7 +58,7 @@ Create the issue types, labels and board fields the example uses, and protect th
    fab0-resolve validate
    ```
 
-   It must print `"ok": true`.
+   It must print `"ok": true`. It also checks that the runs repository can be reached.
 
 Commit `.fab0/` and `.claude/`, and push them to the base branch.
 
@@ -78,4 +81,4 @@ An engine newer than the installed plugin, for example one run from a developmen
 
 ## 6. Run it
 
-Open an item the pipeline's trigger matches, for example an issue of type Story, and run `/fab0:run <issue number>`. The example's README describes what happens and where you take part.
+Open an item the pipeline's trigger matches, for example an issue of type Story, and run `/fab0:run <issue number>`. The example's README describes what happens and where you take part. With `story`, the spec's review pull request opens in the runs repository: ask for changes there with a Comment review, edit the files on its branch, or merge it to approve the spec. Only a merge by someone in the gate's owner role approves it.
