@@ -1,5 +1,6 @@
-# The docs factory: an issue of type Docs in fab0-dev/docs becomes a brief, then pages written and reviewed
-# by agents and merged into the run branch; the docs owner merges the run into main.
+# The docs factory: an issue of type Docs in fab0-dev/docs becomes a brief, reviewed in fab0-dev/fab0-runs,
+# then pages written and reviewed by agents and merged into the run branch; the docs owner merges the run
+# into main.
 schema: 2
 repos:
   home:     {path: ., github: fab0-dev/docs, owner: docs-owner}
@@ -20,7 +21,8 @@ git:
   branching: run
   auto_merge: {into: [run]}
 parallel: {max: 3, cross_run: warn}
-ledger: {path: "work/{run}/ledger"}
+# The runs repository, which fab0's factories share: this one keeps its runs under runs/docs/.
+store: {github: fab0-dev/fab0-runs, project: docs}
 models:
   claude-code: {deep: opus, balanced: sonnet, fast: haiku}
 profiles:

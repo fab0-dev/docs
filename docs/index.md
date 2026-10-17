@@ -2,7 +2,7 @@
 
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-These pages describe fab0 0.7, ahead of its release. 0.7 keeps what a run produces for itself, its ledger and its working files, in a run store, so your repositories receive only product changes. The latest release, 0.6.5, still keeps the ledger in the product repositories; until 0.7 is released, use these pages with the `fab0-core` `main` branch.
+These pages describe the latest release of the `fab0` plugin, 0.7. It keeps what a run produces for itself, its ledger and its working files, in a run store, so your repositories receive only product changes.
 
 ## Status markers
 

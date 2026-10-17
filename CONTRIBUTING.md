@@ -34,13 +34,13 @@ A Docs issue runs this repository's own fab0 factory (`.fab0/`) on its own branc
 
 | Step | Who | What | Gate |
 |---|---|---|---|
-| start | `apply` | the run branch, and a draft pull request into `main` that closes the issue | — |
-| `brief` | `docs-planner` | compares the docs with fab0's sources and writes `briefs/<run>.md` (findings, outline, acceptance checks) and `work/<run>/tasks.yaml` | **human**: the docs owner merges the brief's pull request into the run branch |
+| start | `apply` | the run branch; its draft pull request into `main`, which closes the issue, opens once the first page is merged into it | — |
+| `brief` | `docs-planner` | compares the docs with fab0's sources and writes the brief (findings, outline, acceptance checks) and its task list, which fab0 keeps in the run store, [`fab0-dev/fab0-runs`](https://github.com/fab0-dev/fab0-runs), under `runs/docs/<run>/` | **human**: the docs owner merges the brief's review pull request in `fab0-dev/fab0-runs` |
 | tasks | `apply` | one Task sub-issue per page or section | — |
 | `write`, per task | `docs-writer` | writes the page, in parallel with tasks whose files don't overlap | **auto**: `docs-reviewer`, on a different model; on approval `apply` merges the page into the run branch |
-| end | `apply` | closes the Task sub-issues, brings `main` in, removes the task list, marks the run's pull request ready | **human**: the docs owner merges it into `main` |
+| end | `apply` | closes the Task sub-issues, brings `main` in, marks the run's pull request ready | **human**: the docs owner merges it into `main` |
 
-The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill. Ask for changes to a brief or a page with a review on its pull request; a Comment review is enough.
+The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill. Ask for changes to a brief or a page with a review on its pull request; a Comment review is enough. You can also edit the brief on its review branch; your edit counts as your own version of it.
 
 Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https://github.com/fab0-dev/fab0).
 

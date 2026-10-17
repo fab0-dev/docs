@@ -1,6 +1,5 @@
 artifact: brief
-kind: file
-file: {repo: home, path: "briefs/{run}.md", format: markdown}
+kind: store
+store: {format: markdown}
 verify:
   - sections: [Intent, Readers, Sources, Findings, Outline, Acceptance, Open questions]
-keep: durable
