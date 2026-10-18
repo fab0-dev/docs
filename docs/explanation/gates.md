@@ -51,6 +51,10 @@ A unit whose work is merged into the branch it targets is done, whatever its gat
 
 An agent may return `questions` when it can't decide something only a person can. The unit then waits, and its questions are posted once on its pull request. A unit whose attempt changed nothing has no pull request, so its questions are posted on the run's item instead, and so is an escalation. A person answers by changing an input: the tracker item, a review or a conversation comment on the pull request, or a file. The changed input sends the unit back to its agent. Its failed checks don't count against it meanwhile.
 
+## Acknowledging what a child hands back
+
+A [call](connected-factories.md)'s gate is its acknowledgement of each output its child run hands back. `none` accepts one that is in the format the call accepts, which the child checked before handing it back. An `auto` gate is an agent that judges it. A `human` gate is a review pull request in the runs repository, as for a store-only unit: merging, by the gate's owner, accepts, and a review that asks for changes, or comments, rejects. A rejection sends the output back to the child, whose own `retry` and `then` decide what follows, so a call's gate takes neither.
+
 ## Gated blocks
 
 A `foreach`, `parallel` or `when` block may have a gate of its own. It gets a branch of its own, its units branch from it, and its gate governs the block's pull request into its parent. A block's agent gate judges the block's units as they are. It isn't retried as a whole: after a rejection or an escalation, a person decides which unit to redo.

@@ -1,6 +1,6 @@
 # Ledger entry
 
-One attempt of a step, one auto gate's decision on it, or one claim, as a YAML file: a **fact** in the run store. A person's decision is a merge or a label, so it is in git and the tracker, not here. The engine writes facts, and pushes them to the runs repository; they never reach a product repository. Facts are create-only: writing a fact whose name exists changes nothing, and is how two machines find out that one of them came first. The schemas are `plugins/fab0/schemas/ledger-entry.json` and `plugins/fab0/schemas/claim.json` in [`fab0-core`](https://github.com/fab0-dev/fab0-core). For what the ledger is for, see [artifacts and the ledger](../explanation/artifacts-and-ledger.md#the-ledger).
+One attempt of a step, one auto gate's decision on it, or one claim, as a YAML file: a **fact** in the run store. A person's decision is a merge or a label, so it is in git and the tracker, not here. The engine writes facts, and pushes them to the runs repository; they never reach a product repository. Facts are create-only: writing a fact whose name exists changes nothing, and is how two machines find out that one of them came first. The schemas are `plugins/fab0/schemas/ledger-entry.json`, `plugins/fab0/schemas/claim.json` and, for the [link facts](#link-facts), `plugins/fab0/schemas/link-*.json` in [`fab0-core`](https://github.com/fab0-dev/fab0-core). For what the ledger is for, see [artifacts and the ledger](../explanation/artifacts-and-ledger.md#the-ledger).
 
 ## Where entries are
 
@@ -11,6 +11,7 @@ In the runs repository that `store` names in `fab0.yaml`, in the run's folder `r
 | `<unit>-<attempt>.yaml` | An attempt, for example `implement-T2-1.yaml` | `record`, or `apply` for a person's edit |
 | `<unit>-<attempt>-gate.yaml` | The auto gate's decision on that attempt | `record --gate` |
 | `<unit>-<attempt>-claim.yaml` | Who took that attempt. See [claims](#claims) | `next`, before the hand-out |
+| `<kind>@<key>.yaml` | A link between a parent run and a child run. See [link facts](#link-facts) | `apply`, or `record --gate` for an agent's acknowledgement |
 
 The run's folder also holds its store artifacts, `objects/sha256-<hex>.<ext>`, and the readable copies of a unit's outputs that reached `main` through its review pull request, `review/<unit>/`.
 
@@ -80,3 +81,64 @@ at: '2026-10-15T10:00:00Z'
 | `actor` | yes | The tracker user who took it |
 | `machine` | yes | The checkout that took it: an id kept in the home repo's git directory, so a checkout knows its own claim |
 | `at` | yes | When, as a UTC time to the second |
+
+## Link facts
+
+A [call](pipeline.md#call) links a run of one factory, the parent, to a run of a connected factory, the child. Both runs keep their own folder in the same runs repository, and each writes facts only in its own. The facts that link them are named `<kind>@<key>`. A unit id never holds `@`, so a link fact never reads as an attempt, a gate decision or a claim. For how calls work, see [connected factories](../explanation/connected-factories.md).
+
+| Fact | In whose folder | What | Written by |
+|---|---|---|---|
+| `call@<call>` | The parent's | The call started its child run | The parent's `apply`, once it has filed the child run's item |
+| `bound@parent` | The child's | Its copy of what the call binds and accepts, so `record` reads it without the tracker | The child's `apply` (`call.bind`) |
+| `export@<unit>-<attempt>+<output>` | The child's | One version of an output the caller takes | The child's `apply`, once the unit is done |
+| `ack@<call>+<unit>-<attempt>+<output>` | The parent's | The parent's answer to that export | `record --gate` for an agent, `apply` for a person's review pull request |
+
+### `call@<call>`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `factory` | yes | The connected factory, as `factories` names it |
+| `pipeline` | yes | The child pipeline |
+| `unit` | yes | The call's unit in the parent run |
+| `element` | no | Inside a `foreach`, the element the call is for |
+| `item` | yes | The child run's item, `owner/repo#n` |
+| `project` | yes | The child factory's `store.project` |
+| `run` | yes | The child run's id: its item's number |
+| `bindings` | yes | Per child input, the parent's artifact bound to it |
+| `formats` | yes | Per output the parent takes, its accepted format: `artifact`, the parent's artifact; `schema`, its schema as an object in the parent's folder, when it has one; `sections`, the Markdown sections its checks ask for; and `optional` |
+| `acknowledge` | no | How the call answers what comes back: `none`, `auto` or `human`, by its gate |
+| `actor` | yes | The tracker user whose command wrote it |
+| `at` | yes | When, as a UTC time to the second |
+
+### `bound@parent`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `parent` | yes | The call: the parent's store `project`, its `run`, the call's `unit`, the parent run's `item`, and the call's `element`, if any |
+| `bindings` | yes | As in `call@<call>` |
+| `formats` | yes | As in `call@<call>` |
+| `acknowledge` | no | As in `call@<call>` |
+| `actor` | yes | As above |
+| `at` | yes | As above |
+
+### `export@<unit>-<attempt>+<output>`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `output` | yes | The child pipeline's output |
+| `unit` | yes | The child unit whose attempt produced it |
+| `attempt` | yes | That attempt |
+| `object` | yes | The output, as an object in the child's folder. A `file` output is copied there from the unit's commit |
+| `actor` | yes | As above |
+| `at` | yes | As above |
+
+### `ack@<call>+<unit>-<attempt>+<output>`
+
+| Field | Required | Meaning |
+|---|---|---|
+| `export` | yes | The export answered: the child's store `project`, its `run`, and the export fact's `name` |
+| `decision` | yes | `accepted` or `rejected` |
+| `findings` | no | What the parent found, for the child's next attempt |
+| `reviews` | no | A person's answer: the review pull request's reviews it comes from, so none counts twice |
+| `actor` | yes | Who decided |
+| `at` | yes | As above |

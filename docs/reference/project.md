@@ -30,6 +30,7 @@ pipelines: [story]
 |---|---|---|
 | `schema` | yes | `2`. The engine refuses other versions |
 | `repos` | yes | The repositories the factory reads and writes, by name. See below |
+| `factories` | no | Connected factories: other repositories with a factory of their own, whose pipelines this factory calls. See below |
 | `people` | no | Roles, each mapped to tracker users |
 | `tracker` | no | Where runs, human decisions and dependencies are tracked. Without it, a factory has manual triggers only |
 | `git` | no | The git workflow |
@@ -52,6 +53,25 @@ One entry per repository. `home` is required: it holds `.fab0/`. A repository ca
 | `owner` | no | The role whose turn a human gate in this repository is |
 | `key` | no | **Planned:** a short key of two or three capital letters, for unit names that span repositories. `validate` checks that keys are unique; nothing uses them yet |
 | `base` | no | The base branch, if not `git.base` |
+
+## `factories`
+
+A connected factory is another repository with its own `.fab0/`, agents and people. A [`call`](pipeline.md#call) in this factory's pipelines starts a run of one of its pipelines, as a child run. This factory never writes a connected factory's repositories, so none of them is also in `repos`: `validate` refuses one that is. For how calls work, see [connected factories](../explanation/connected-factories.md).
+
+```yaml
+factories:
+  service: {github: acme/service, path: ../service, owner: service-developer}
+  web:     {github: acme/web, path: ../web, owner: web-developer}
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `github` | yes | Its home repository on GitHub, as `owner/name`. A call files the child run's item there |
+| `path` | no | Its checkout, relative to the home repo. `validate` reads its wiring there, and a call needs it to start a child run. Without it, `validate` warns that the connection isn't checked |
+| `base` | no | The branch its wiring is read at. Default `main`: what its own engine reads |
+| `owner` | no | The role whose turn it is while the child run works |
+
+`validate` checks each connection, reading the connected factory's `.fab0/` at its base branch: its wiring is valid; it uses this factory's runs repository, under a `store.project` of its own; it uses the same tracker kind and owner; its home repository is the one `github` names; and each call fits its pipeline. `validate` lists each connected factory under `factories`, with `checked` and, when it couldn't check, `why`.
 
 ## `people`
 

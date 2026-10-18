@@ -19,6 +19,8 @@ Arguments may use the [step placeholders](step.md#placeholders), such as `{run.t
 | `tracker.child.close` | A `foreach`'s `onEnd` |
 | Every other action | Anywhere: `onStart`, `onEnd`, or as a step |
 
+A [`call`](pipeline.md#call) and a called pipeline have actions of their own, which no wiring names: `call.start`, which files the child run's item and records the call, and `call.bind`, which a called run starts with. `apply` performs them like any other.
+
 `git.*` and `pr.*` actions do nothing under `branching: flat`, which has no run branch. `tracker.*` actions need a tracker in `fab0.yaml`.
 
 fab0 0.6's `git.remove-run-artifacts` is gone, and `validate` refuses it with a hint: a working file is a `store` artifact, which never reaches a product repository, so nothing is left to remove.
@@ -43,6 +45,8 @@ Every run pull request's body closes the run's item, `Closes <owner>/<repo>#<run
 
 ## tracker
 
+`tracker.label`, `tracker.assign`, `tracker.comment`, `tracker.field` and `tracker.close` act on the run's item, or with `item: parent`, on the item it is a sub-issue of.
+
 | Action | Arguments | Done when |
 |---|---|---|
 | `tracker.label` | `add`, `remove`: lists of labels | The run's item has every label in `add` and none in `remove` |
@@ -52,3 +56,4 @@ Every run pull request's body closes the run's item, `Closes <owner>/<repo>#<run
 | `tracker.close` | none | The run's item is closed |
 | `tracker.child.sync` | `type`: an issue type; `title`: a template, default `{unit.title}` | Every element of the `foreach` has a sub-issue of the run's item with that title and type. `apply` creates the missing ones, and adds every `after` that involves a new item as a blocked-by relation. Relations between items that already existed are left as people set them |
 | `tracker.child.close` | `type` and `title`, as for `tracker.child.sync` | Every element's item is closed |
+| `tracker.items` | `from`: a list artifact, read as a `foreach` reads it; `of`: `run` (default) or `parent`; `type`, `label`; `title` (default `{unit.title}`) and `body`, templates on each element | Every element of the list has a sub-issue, with that title (and type), of the run's item or of its parent. `apply` creates the missing ones. Until the list is there, the action waits on it |

@@ -134,8 +134,12 @@ The home checkout's `.fab0/` governs the run, even when the engine is called fro
 
 The run store keeps every run, so the inbox evaluates finished runs too, and leaves them out of what it shows.
 
+A call waiting on its child run shows the child run's item, the `/fab0:run` to run, and the connected factory's checkout to run it in: the inbox there lists that run.
+
 Beside each open run it shows the run's latest event from the [event log](#following-a-run-from-outside-its-session), when the run has one on this machine. It changes nothing.
 
 ## Who may run what
+
+A session runs one run of its own factory. A call's child run belongs to the connected factory, whose people run it from their own checkout, with its own wiring, agents and gates, so `/fab0:run` never runs it, even when that checkout is beside its own.
 
 Anyone with the project checked out may run any unit: claims keep two machines from running the same one. A claim is a fact in the run store, written once and pushed before the hand-out, so the first machine to push it takes the attempt. Another machine sees the unit as `running`, with the reason `claimed: elsewhere`, and doesn't hand it out. Each attempt is claimed, a rework included. The tracker login is the actor recorded in the ledger, and each person pushes to the run store with their own credentials. A human gate's `owner` says whose turn the decision is, and the inbox shows it to them.
