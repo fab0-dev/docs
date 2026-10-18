@@ -13,7 +13,7 @@ A factory lives in a project's `.fab0/` directory, as short YAML files:
 | Step | `.fab0/steps/<name>.yaml`, or inline in a pipeline | One piece of work, done by an agent, an action, a command or a tool |
 | Artifact | `.fab0/artifacts/<name>.yaml` | Something steps read and write: a file in a repository, a file kept in the run store, a part of an issue or a pull request, a tool's value |
 
-Around the steps are the **operators**: a sequence, `foreach` over a list, `parallel` branches, and `when` for a condition. Every transition has a **gate**: `none`, `auto` or `human`. See [pipelines and steps](pipelines.md) and [gates](gates.md).
+Around the steps are the **operators**: a sequence, `foreach` over a list, `parallel` branches, `when` for a condition, and `call`, which runs a pipeline of a [connected factory](connected-factories.md). Every transition has a **gate**: `none`, `auto` or `human`. See [pipelines and steps](pipelines.md) and [gates](gates.md).
 
 The engine, `fab0-resolve`, reads these files at run time. Nothing is compiled. It works out which work is due, hands it to a Claude Code session, checks what comes back, and performs every write to git and the tracker that can be done exactly. See [running a pipeline](execution.md).
 
@@ -51,6 +51,13 @@ fab0's design follows a few principles. Each has a reason.
 | **run store** | Where a run keeps what it produces for itself: its ledger, and the artifacts of kind `store`. The engine alone reads and writes it |
 | **runs repository** | The git repository that holds the run store, one per product, shared by its factories. Each factory's runs are under their own project key |
 | **claim** | The paths a unit may write. Units whose claims overlap don't run at the same time. Taking an attempt of a unit is also claimed, as a fact in the run store, so two machines never run the same attempt |
+| **connected factory** | Another repository with a factory of its own, which this factory calls. It stays complete on its own: its own wiring, agents, people and runs |
+| **parent**, **child** | The run that holds a `call`, and the run it starts in a connected factory |
+| **call** | A pipeline node that starts a child run, binds its inputs, and receives and acknowledges what it hands back |
+| **binding** | What a call passes to a child's input: an artifact of the parent |
+| **export** | One version of a child's output, handed back once the unit that wrote it is done |
+| **acknowledgement** | The parent's answer to an export, accepted or rejected, which the call's gate decides |
+| **join** | A call is done once every output it waits for has an accepted version. Then the parent's next step starts |
 | **example** | A complete factory in [`fab0-dev/fab0-examples`](https://github.com/fab0-dev/fab0-examples), to copy into a project. See [examples](examples.md) |
 
 ## Where to go next

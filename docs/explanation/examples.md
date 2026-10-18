@@ -7,6 +7,8 @@ fab0 ships no factory, but it shows how to build one. [`fab0-dev/fab0-examples`]
 | Example | What it shows |
 |---|---|
 | `story` | Delivery. A product owner approves a spec and a task list, which are kept in the run store and reviewed in a pull request of the runs repository. Agents implement the tasks in parallel on sub-branches, and another agent reviews each one, which `apply` then merges into the run branch. A person merges the finished run into `main` |
+| `feature` | A composition of [connected factories](connected-factories.md). Each Story of a Feature is one run: a spec reviewed by the product owner, then a service and its web client built side by side, each in its own repository with its own factory, and a wrap-up from what they hand back that files follow-up Stories under the Feature, or closes it |
+| `delivery` | The connected factory each code repository copies for `feature`. It plans, writes a contract when other teams build against it, implements each task with a review, and reports on its own area. It also runs on its own |
 | `triage` | Work that isn't code. An agent classifies a bug report, a command checks the classification, and actions label it, escalate it when it is severe, and comment, all in the tracker, with no pull requests |
 
 Each example's README says what it does, what to copy where, and how to set up GitHub and Claude Code for it.

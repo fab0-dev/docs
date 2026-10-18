@@ -54,7 +54,7 @@ Steps pass state through [artifacts](artifacts-and-ledger.md), or through the `d
 - **`foreach`.** Runs its steps once per element of a list artifact, such as a task list. Each element's steps are units of their own, with their own branches. Elements run in parallel, as far as their order and their claims allow. An element may name the elements it comes `after`, and the paths it claims. `max` limits how many run at once.
 - **`parallel`.** Named branches that run at the same time. The block is done when every branch is done. A node may name the branches or steps it comes `after`; the whole branch it is in then waits for them.
 - **`when`.** Runs its steps if a condition holds, and `else` if it doesn't. A condition is a small closed language: an artifact exists, has a Markdown section or has a value; a step's gate gave a verdict; the run's tracker item has a label, a type or a board field value. Conditions combine with `all`, `any` and `not`.
-- **`call`.** Runs another pipeline as a child run. **Planned:** `validate` accepts its shape, and refuses it until a factory needs it.
+- **`call`.** Runs a pipeline of a connected factory, another repository with a factory of its own, as a child run. It binds the child's inputs to artifacts of this run, receives the outputs it takes, acknowledges each one by its gate, and is done once every output it waits for is accepted. See [connected factories](connected-factories.md).
 
 A block may have a gate of its own and an `id`. A `foreach` or `parallel` block may also have its own `onStart` and `onEnd` actions.
 
@@ -84,6 +84,7 @@ An action is done when its check passes, because its result is a fact in git or 
 - a `{<step>.<field>}` placeholder that doesn't point at an earlier agent or tool step;
 - an action in the wrong place, such as a run-wide action inside a block;
 - a run store it can't reach, because every run records there;
+- a connected factory whose wiring doesn't fit a call to it: another runs repository or tracker, a missing pipeline, input or output, or a format that differs. It reads that factory's `.fab0/` at its base branch, as its own engine does;
 - `ledger`, `keep` and `git.remove-run-artifacts` from fab0 0.6, with a hint that says what replaces each.
 
-It also refuses, until a factory needs them, `call`, a pipeline's `inputs` and `outputs`, and a `foreach` inside a `foreach`.
+It also refuses, until a factory needs them, a `foreach` inside a `foreach`, a called pipeline that calls another factory itself, and a call's gate that is a command or a label.

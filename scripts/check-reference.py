@@ -24,7 +24,7 @@ PAGES = {
     "step.md": ["step.json"],
     "artifact.md": ["artifact.json"],
     "returns-and-verdicts.md": ["return.json", "verdict.json"],
-    "ledger.md": ["ledger-entry.json", "claim.json"],
+    "ledger.md": ["ledger-entry.json", "claim.json", "link-call.json", "link-bound.json", "link-export.json", "link-ack.json"],
 }
 
 

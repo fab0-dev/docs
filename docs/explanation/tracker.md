@@ -18,8 +18,10 @@ Git carries the work; the tracker carries what people decide. fab0 reads the tra
 
 Every write is an [action](../reference/actions.md), or part of `apply`'s merges and pull requests:
 
-- labels, assignees, comments, board fields, and closing an item;
+- labels, assignees, comments, board fields, and closing an item: the run's, or the item it is a sub-issue of;
 - a sub-issue per `foreach` element, with blocked-by relations from the elements' `after`, and closing them at the end;
+- a sub-issue per element of a list, under the run's item or the item it is part of (`tracker.items`);
+- a call's child run item, with the type or label its pipeline's trigger expects, in the connected factory's repository, as a sub-issue of the run's item;
 - the run's pull request in each repository whose run branch has work, each unit's pull request, and a unit's review pull request in the runs repository; their draft state; and comments with questions and escalations, on the run's item when a unit has no pull request, and when someone outside a gate's owner role merged a review pull request;
 - the signal field on the board, when the project names one.
 

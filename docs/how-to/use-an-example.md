@@ -7,6 +7,7 @@ This guide sets up a project with a factory from [`fab0-dev/fab0-examples`](http
 | Example | Use it for |
 |---|---|
 | `story` | Delivering a Story as a spec and a task list, which the product owner reviews in the runs repository, then parallel tasks that agents implement, review and merge into the run branch |
+| `feature` with `delivery` | A Feature's Stories built by several teams, each in its own repository with its own factory: `feature` in the product repository, a copy of `delivery` in each code repository. See [connect a factory](connect-a-factory.md) |
 | `triage` | Work done in the tracker only, such as classifying bug reports |
 
 ## 2. Copy it

@@ -52,6 +52,8 @@ A factory chooses each artifact's home, and the engine predefines none:
 
 A unit whose outputs are all `store` artifacts, with a human gate, is reviewed in a pull request of the runs repository. See [gates](gates.md#review-pull-requests).
 
+What a [call](connected-factories.md) receives is a `store` artifact of the parent too, but its versions stay in the child's folder of the runs repository: the latest is the latest export the parent accepted. The facts that link a parent run and a child run, `call@*`, `bound@parent`, `export@*` and `ack@*`, are in the ledger beside the attempts. See [link facts](../reference/ledger.md#link-facts).
+
 ## The ledger
 
 The ledger of a run is a set of facts in the run store: one per attempt, one per auto gate's decision, and one per claim. An attempt's fact records who ran it, on which branch, at which commit of its parent, the hashes of its inputs and outputs, its checks, its claims, its gate and its reply. The [ledger reference](../reference/ledger.md) lists the fields.

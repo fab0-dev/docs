@@ -53,7 +53,7 @@ A part of a tracker item, read and never written by a step.
 
 | Field | Required | Meaning |
 |---|---|---|
-| `of` | no | `run` (default): the run's item. `unit`: the current element's item |
+| `of` | no | `run` (default): the run's item. `unit`: the current element's item. `parent`: the item the run's item is a sub-issue of, such as the Feature a Story belongs to |
 | `part` | yes | `body`, `title`, `comments`, `labels`, or `field` |
 | `field` | with `part: field` | The board field |
 

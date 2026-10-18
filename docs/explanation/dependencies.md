@@ -26,9 +26,14 @@ A gated block is `open` while its units are under way.
 | `cross-run` | Another open run that claims overlapping paths, when the project's policy is `block` |
 | `invalid-dependency` | A person, because the dependencies can't be right. See below |
 | `condition` | A tracker item a `when` asks about, on a run that has none |
-| `failed` | A changed input, after a command failed, after checks failed more times in a row than the gate's `retry`, or after an auto gate's retries ran out with `then: fail` |
+| `failed` | A changed input, after a command failed, after checks failed more times in a row than the gate's `retry`, or after an auto gate's retries ran out with `then: fail`. On a call: its child run's item was closed as not planned |
+| `factory` | A call's connected factory, whose wiring the call can't read, so it can't start the child run |
 
 A unit that is merely waiting its turn (`order`, `data`, `claim`, `limit`) needs nobody. The others are signals a person may need to act on.
+
+## Calls
+
+A call waits on its child run (`child`), which another factory's people run. In the child, a unit whose outputs the parent takes waits for the parent's answer (`ack`) once its own gate has passed, and in the parent, a call with an `auto` or `human` gate waits to give that answer. A child's step that reads what another call hands back waits with `data` until the parent accepts it: the dependency between two factories is an input, like any other. See [connected factories](connected-factories.md).
 
 ## Dependencies in the tracker
 
