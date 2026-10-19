@@ -25,7 +25,9 @@ What a run produces for itself, its ledger and its `store` artifacts, lives in t
 
 ## The loop
 
-`/fab0:run <run>` repeats these steps until nothing more is handed out:
+`/fab0:run` first finds its run. `#<item>` starts a run from an item, or goes on with the one it has; a run id names a run; with neither, `fab0-resolve pick` names the only run that has work here, and the session asks which when several have. Then `fab0-resolve start` checks what it was given, and counts the session as one more pass over the run. See [run ids](pipelines.md#run-ids).
+
+It then repeats these steps until nothing more is handed out:
 
 1. **`next --apply`** first performs what is due, as `apply` does: every action whose check fails, every merge a gate allows, every pull request a person or a gate needs, and every question or escalation to post. Each write checks first, so running it twice changes nothing. Then it hands out every unit that is ready, and every auto gate that is due, from the same read of the tracker. Before it hands out an attempt, it claims it: it writes a claim fact to the run store and pushes it, and creates the unit's branch from its parent's head, with no commit. The hand-outs reuse the last read of the tracker that `apply` made, so `next` doesn't read it again. When `apply` changes nothing, the whole round is one pass over the tracker; when it changes something, such as a merge, `apply` reads the tracker afresh to see the effect, and the hand-outs come from that last read. `--unit` limits the hand-outs only.
 2. **The session** prepares the checkouts of every hand-out of the round in one turn. In the next it runs the agents of the round in parallel, each in its own worktree, runs commands in their worktree, and calls tools.
@@ -49,7 +51,7 @@ Then it reports what ran and how long each unit took, what `apply` did, and what
 
 Besides actions and merges, `apply`:
 
-- opens a unit's pull request when a person must look at it. A unit whose outputs are all in the run store gets a review pull request in the runs repository instead, and `apply` puts each new attempt's outputs on its branch. See [gates](gates.md);
+- opens a unit's pull request when a person must look at it. A unit whose outputs are all in the run store gets a review pull request in the runs repository instead, and `apply` puts each new attempt's outputs on its branch. Once the gate's owner approves it, `apply` records the approval and merges it. See [gates](gates.md);
 - records a person's edit of those outputs on the review branch as an attempt by that person;
 - posts questions and escalations once: on the unit's pull request, or on the run's item when the unit has none, because its attempt changed nothing;
 - opens a repository's run pull request once its run branch has work, if `onStart` has `pr.open-run`;
@@ -100,6 +102,20 @@ With `--follow` it prints what is logged, then each new event within about two s
 
 You don't have to type the command: `/fab0:run` shows it once, at the start of the run's first round, to paste into another terminal. It gives the engine's absolute path, `log <run> --follow`, and `--project` with the home checkout's path. And `/fab0:inbox` shows each open run's latest event, its time and line, beside the run. A run with no events on this machine shows none.
 
+## The watch
+
+A run waits often: for a person's review, for a child run in another factory, for another machine. Without the watch, someone notices and types `/fab0:run` again. `/fab0-watch` does that in the session.
+
+It is a Claude Code mod in the `fab0` plugin. On a timer it runs `fab0-resolve tick`: one deterministic pass over the checkout's open runs, which says what changed since the last tick and what should happen next. The watch shows that, in a band above the prompt, the status line, transcript lines and notifications, and acts on it:
+
+- **While the session is idle**, the tick settles the runs first, as `apply` does. A person's approval is recorded and its review pull request merged, and actions are applied, with no model.
+- **When the engine says `continue`**, because a run has work for a session here, the watch runs `/fab0:run <run>`, as if the person typed it. The session's permission mode and the merge guard hold as for any turn.
+- **When a run waits on a person**, it says on whom and where, and notifies. It never decides for a person: human gates stay human.
+
+The engine decides; the watch only reads its answer. That keeps routing in one place, and lets any other surface, such as a service later, read the same answer. Its guards keep it from running away: one run at a time, never twice on the same work (a run that went nowhere is said once), a cap an hour, and a pause when the person stops a turn it started.
+
+A long wait costs little. A tick runs no model, and through a quiet wait the ticks slow down to one every ten minutes. Nothing is lost while no session runs: each tick reads the whole state again. A session opened later takes the watch up, says what changed meanwhile, and goes on. The conversation can be cleared at any wait, since a run's state is the engine's, not the conversation's. See [watch a run](../how-to/watch-a-run.md).
+
 ## Hand-outs and briefs
 
 A hand-out tells the session everything it needs for one unit: the branches to create and the worktree to work in, what the unit may change, its executor, and the JSON schema its reply must match. A unit with `store` outputs also gets an **outbox**: a folder under the home repo's git directory, outside every checkout, where its agent writes them.
@@ -125,7 +141,7 @@ The home checkout's `.fab0/` governs the run, even when the engine is called fro
 
 ## The inbox
 
-`/fab0:inbox` shows every open run of the project and what it needs. It finds runs from their traces: runs in the run store, run branches not yet in the base, and open items that match a trigger. It sorts their units into:
+`/fab0:inbox` shows every open run of the project, where it is, and what it needs. It finds runs from their traces: runs in the run store, run branches not yet in the base, and open items that match a trigger. An item no run has started yet shows as one to start, with `/fab0:run #<n>`; starting is a person's choice, so a bare `/fab0:run` never takes one. It sorts the runs' units into:
 
 - what waits on your roles;
 - what anyone can run now;

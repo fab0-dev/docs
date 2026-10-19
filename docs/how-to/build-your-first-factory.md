@@ -135,11 +135,11 @@ It prints `"ok": true`, or every problem with its file. It also checks that the 
 ## 7. Run it
 
 1. Open an issue that says what the release contains, and label it `release-notes`, for example `#7`.
-2. In Claude Code, run `/fab0:run 7`. The run's branch is created, the agent writes the notes, and their pull request opens against the run branch. The run then waits for you.
-3. Review the notes' pull request. To ask for changes, leave a review and run `/fab0:run 7` again; the agent revises the notes from it. Merge the pull request to accept them.
-4. Run `/fab0:run 7` once more. The run branch now has the notes, so the run's pull request opens, and `onEnd` marks it ready. Merge it into `main`.
+2. In Claude Code, run `/fab0:run #7`. The run takes its id from the runs repository, for example `1`, and says it on the issue. The run's branch, `fab0/1/base`, is created, the agent writes the notes, and their pull request opens against the run branch. The run then waits for you.
+3. Review the notes' pull request. To ask for changes, leave a review and run `/fab0:run` again; with only this run open, it needs no argument, and the agent revises the notes from your review. Merge the pull request to accept them.
+4. Run `/fab0:run` once more. The run branch now has the notes, so the run's pull request opens, and `onEnd` marks it ready. Merge it into `main`.
 
-`fab0-resolve status 7` shows every unit's state at any point, and `/fab0:inbox` shows what waits on whom.
+`fab0-resolve status 1` shows every unit's state, and where the run is, at any point, and `/fab0:inbox` shows what waits on whom. With [the watch](watch-a-run.md) on, you don't type `/fab0:run` again: the session goes on after your review by itself.
 
 ## Next steps
 

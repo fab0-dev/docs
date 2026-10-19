@@ -49,7 +49,7 @@ Every field named in `tracker.fields` must exist on the project. A single-select
 
 ## 5. The base branch
 
-Protect the base branch with a ruleset that requires a pull request, with your tests as required checks. A run then reaches the base branch only through its run pull request, which a person merges.
+Protect the base branch with a ruleset that requires a pull request, with your tests as required checks. A run then reaches the base branch only through its run pull request, which a person merges, or `apply` when the factory's merge policy allows the base branch; see [who merges](../explanation/gates.md#who-merges). A ruleset that asks for a person's review refuses `apply`'s merge, so a factory that lets `apply` merge into the base branch keeps the ruleset to required checks.
 
 Leave `fab0/**` branches unprotected: `apply` merges approved units into run branches by pushing a merge commit, which a protected branch would refuse. If your CI runs on pull requests into any branch, unit pull requests show their checks, and agents and people can read them. `apply` waits only for checks GitHub reports as required, so on unprotected run branches it doesn't wait. The base branch's required checks still gate the run's pull request.
 
@@ -87,7 +87,7 @@ One runs repository serves every factory of a product. Each factory keeps its ru
    gh api -X PUT repos/acme/product-runs/collaborators/po-user -f permission=push
    ```
 
-   Everyone who runs fab0 pushes there with their own `gh` login, so each record names who made it. The owner of a human gate merges its review pull requests there, and only a merge by someone in that role approves the unit.
+   Everyone who runs fab0 pushes there with their own `gh` login, so each record names who made it. The owner of a human gate approves its review pull requests there with an approving review, and only an approval by someone in that role approves the unit. fab0 then records the decision and merges the pull request, so nobody merges or pushes there by hand, and the ruleset on its `main` needs no required review.
 
 4. Name it in `fab0.yaml`:
 
