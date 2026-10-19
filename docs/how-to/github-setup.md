@@ -87,7 +87,7 @@ One runs repository serves every factory of a product. Each factory keeps its ru
    gh api -X PUT repos/acme/product-runs/collaborators/po-user -f permission=push
    ```
 
-   Everyone who runs fab0 pushes there with their own `gh` login, so each record names who made it. The owner of a human gate approves its review pull requests there with an approving review, and only an approval by someone in that role approves the unit. fab0 then records the decision and merges the pull request, so nobody merges or pushes there by hand, and the ruleset on its `main` needs no required review.
+   Everyone who runs fab0 pushes there with their own `gh` login, so each record names who made it. The owner of a human gate approves its review pull requests there with an approving review, or with a comment `/approve` on one they opened, and only an approval by someone in that role approves the unit. fab0 then records the decision and merges the pull request, so nobody merges or pushes there by hand, and the ruleset on its `main` needs no required review.
 
 4. Name it in `fab0.yaml`:
 

@@ -2,7 +2,7 @@
 
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-These pages describe the `fab0` plugin 0.9, ahead of its release: 0.8 is the latest release. 0.9 gives a run one id, from the runs repository, which its child runs share; people decide in the runs repository by review, and fab0 merges; and the watch, `/fab0-watch`, goes on with runs in the session when a review or a child lets them. 0.8 connects factories: a step of one factory runs a pipeline of another, in another repository. Since 0.7, what a run produces for itself, its ledger and its working files, is kept in a run store, so your repositories receive only product changes.
+These pages describe the latest release of the `fab0` plugin, 0.9. It gives a run one id, from the runs repository, which its child runs share; people decide in the runs repository by review, and fab0 merges; and the watch, `/fab0-watch`, goes on with runs in the session when a review or a child lets them. 0.8 connects factories: a step of one factory runs a pipeline of another, in another repository. Since 0.7, what a run produces for itself, its ledger and its working files, is kept in a run store, so your repositories receive only product changes.
 
 ## Status markers
 

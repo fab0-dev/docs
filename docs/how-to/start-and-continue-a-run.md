@@ -22,7 +22,7 @@ run 12 · story · acme/shop#52 · pass 1 · at spec (gate human)
 
 ## 2. Continue it
 
-When the run waits on you, answer where it says: approve or comment on its review pull request, answer its questions, or merge its pull request. Then continue it:
+When the run waits on you, answer where it says: approve or comment on its review pull request (a comment `/approve` approves one you opened yourself, which GitHub doesn't let you approve), answer its questions, or merge its pull request. Then continue it:
 
 ```text
 /fab0:run

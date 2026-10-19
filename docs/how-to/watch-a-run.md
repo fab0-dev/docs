@@ -26,7 +26,7 @@ The status line counts the runs and those that wait on a person. Each change sho
 
 ## 2. Answer, and let it go on
 
-Answer where the run waits: for example, approve the spec's review pull request on GitHub. Within a minute or so, the watch's next tick records your approval and merges the pull request, then goes on with the run:
+Answer where the run waits: for example, approve the spec's review pull request on GitHub, with an approving review, or with a comment `/approve` when you opened it yourself, as fab0 does with your login when you run it. Within a minute or so, the watch's next tick records your approval and merges the pull request, then goes on with the run:
 
 ```text
 fab0 run 12: spec: waiting (gate human) → done: going on with /fab0:run 12
