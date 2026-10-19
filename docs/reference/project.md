@@ -110,7 +110,7 @@ A pipeline may override `branching` and `auto_merge` in its own `git`.
 
 ## `store`
 
-The run store is a git repository, the **runs repository**, that holds what runs produce for themselves: each run's ledger, its store artifacts, and the review pull requests of units whose outputs are all in the store. Your product repositories then receive only product changes. One runs repository serves every factory of a product, each in its own folder, `runs/<project>/`, so their run ids never collide. Give `github`, `path`, or both.
+The run store is a git repository, the **runs repository**, that holds what runs produce for themselves: each run's ledger, its store artifacts, and the review pull requests of units whose outputs are all in the store. Your product repositories then receive only product changes. One runs repository serves every factory of a product, each in its own folder, `runs/<project>/`. Its root holds the [register](ledger.md#the-register), which gives every run started from an item an id that no other factory's run has. fab0 alone writes it: people review its pull requests, and an approving review is the decision, which `apply` records before it merges. Give `github`, `path`, or both.
 
 | Field | Required | Meaning |
 |---|---|---|

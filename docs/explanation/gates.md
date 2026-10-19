@@ -8,7 +8,7 @@ Every transition in a pipeline has a gate. It says who decides that a unit's wor
 |---|---|---|
 | `none` (default) | Nobody: the work moves on | `apply` merges the unit's branch into its parent directly, without a pull request |
 | `auto` | An agent's verdict, or a command's exit code | On `approve`, the unit is merged by `apply` (`merge: auto`) or by a person (`merge: human`) |
-| `human` | A person | A person merges the unit's pull request (in a product repository, or in the runs repository for a unit whose outputs are all in the run store), or adds a label to the run's item |
+| `human` | A person | A person merges the unit's pull request in a product repository, approves its review pull request in the runs repository for a unit whose outputs are all in the run store, or adds a label to the run's item |
 
 Agents do as much of the work as the gates allow. People take part where a gate is `human`, or where an `auto` gate hands over to them.
 
@@ -29,7 +29,7 @@ What follows a verdict:
 
 A human gate waits for a person:
 
-- **Through a pull request** (default). The unit's pull request is ready for review, and merging it accepts the work. The `owner` role is whose turn it is. A unit whose outputs are all in the run store gets a review pull request in the runs repository instead; see [review pull requests](#review-pull-requests).
+- **Through a pull request** (default). The unit's pull request is ready for review, and merging it accepts the work. The `owner` role is whose turn it is. A unit whose outputs are all in the run store gets a review pull request in the runs repository instead, where an approving review accepts it; see [review pull requests](#review-pull-requests).
 - **Through a label** (`via: label`), for units without a pull request, such as work recorded only in the tracker. Adding the label to the run's item accepts the work.
 
 To ask for changes, a person leaves a review or a conversation comment on the pull request. When the step lists its pull request's reviews among its inputs (a `pr` artifact with `part: reviews`), the review or comment sends the unit back to its agent, with it in its brief. On their own pull request, GitHub lets a person leave only a **Comment** review, and that counts. A plain conversation comment counts too, whoever the author is, except the comments fab0 itself posts (their body starts with `<!-- fab0:`).
@@ -41,11 +41,11 @@ A unit whose work is all in the run store, such as a spec and its task list, has
 - **The branch** is `fab0/<project>/<run>/<unit>`, one per unit. It holds readable copies of the unit's outputs under `runs/<project>/<run>/review/<unit>/`. `apply` adds one commit per attempt, so the pull request shows what changed since the last review.
 - **Asking for changes** works as for any unit: a Comment review or a conversation comment brings a new attempt, with the review in its brief, because the unit's own `pr` artifact is this pull request.
 - **A person's edit.** A person may fix the files on the branch directly. `apply` records their commit as the next attempt, by them, checks it like an agent's work, and makes it the latest version that later steps read.
-- **The merge approves** only when the person who merged holds the gate's owner role, and only when it brought the latest attempt's outputs. GitHub's branch rules can't limit who merges one path, so the engine checks this itself. A merge by anyone else is said on the pull request, and the gate doesn't pass; an approving review by someone in the owner role then passes it. A merge at an older attempt doesn't pass a newer one: the newer attempt gets a new pull request.
+- **An approving review decides.** The gate passes when someone in the owner role approves the commit of the branch that holds the latest attempt's outputs. `apply` then records the approval as the attempt's gate decision, in the ledger, and merges the pull request at that commit itself. Nobody merges or pushes in the runs repository by hand: it is fab0's, and people only review there. An approval of an older commit, or by anyone else, decides nothing, and a later review that asks for changes takes an approval back. If a branch protection refuses `apply`'s merge, the decision still stands, and `apply` says that a person merges it. A merge by an owner still decides too, as it did before 0.9.
 
 ## Whoever merges decides
 
-A unit whose work is merged into the branch it targets is done, whatever its gate said. A person who merges an escalated or rejected unit overrides the gate, because the tracker and git are where people's decisions live. For the same reason, reviews and conversation comments on a unit's pull request stop counting once it is merged. A review pull request in the runs repository is the one exception: anyone with write access to the runs repository can merge there, so its merge decides only when someone in the owner role made it.
+A unit whose work is merged into the branch it targets is done, whatever its gate said. A person who merges an escalated or rejected unit overrides the gate, because the tracker and git are where people's decisions live. For the same reason, reviews and conversation comments on a unit's pull request stop counting once it is merged. A review pull request in the runs repository is the exception: there a review decides, and the merge is `apply`'s, after it has recorded the decision.
 
 ## Questions
 
@@ -53,12 +53,14 @@ An agent may return `questions` when it can't decide something only a person can
 
 ## Acknowledging what a child hands back
 
-A [call](connected-factories.md)'s gate is its acknowledgement of each output its child run hands back. `none` accepts one that is in the format the call accepts, which the child checked before handing it back. An `auto` gate is an agent that judges it. A `human` gate is a review pull request in the runs repository, as for a store-only unit: merging, by the gate's owner, accepts, and a review that asks for changes, or comments, rejects. A rejection sends the output back to the child, whose own `retry` and `then` decide what follows, so a call's gate takes neither.
+A [call](connected-factories.md)'s gate is its acknowledgement of each output its child run hands back. `none` accepts one that is in the format the call accepts, which the child checked before handing it back. An `auto` gate is an agent that judges it. A `human` gate is a review pull request in the runs repository, as for a store-only unit: an approving review by the gate's owner accepts, and `apply` merges; a review that asks for changes, or comments, rejects. A rejection sends the output back to the child, whose own `retry` and `then` decide what follows, so a call's gate takes neither.
 
 ## Gated blocks
 
 A `foreach`, `parallel` or `when` block may have a gate of its own. It gets a branch of its own, its units branch from it, and its gate governs the block's pull request into its parent. A block's agent gate judges the block's units as they are. It isn't retried as a whole: after a rejection or an escalation, a person decides which unit to redo.
 
-## Nobody merges what they shouldn't
+## Who merges
 
-Merges happen in two places only: `apply`, within the policy above, and people. The [examples](examples.md) add a merge guard: a Claude Code hook that blocks any merge, push to the base branch or force push that a model issues. `apply` merges through its own git calls, so it isn't blocked.
+Merge authority comes from the gates and the merge policy alone. A person approves only where a gate is `human`. Elsewhere `apply` merges what an `auto` gate approved, what a `none` gate allows, and a review pull request a person approved, within the project's `git.auto_merge`. Into the base branch that needs `into: [base]` with `allow_base: true`: with it, and `pr.merge` in place of `pr.ready` at the end of the pipeline, a run reaches the base branch once every gate has passed, and nobody merges. Without it, the default, a person merges the run's pull request.
+
+A model never merges by itself, so merges happen in two places only: `apply`, which merges what the gates and the policy allow, and people. The [examples](examples.md) add a merge guard: a Claude Code hook that blocks any merge, push to the base branch or force push that a model issues, so every merge goes through `apply`. `apply` merges through its own git and GitHub calls, so it isn't blocked. A branch whose ruleset asks for a person's review refuses `apply`'s merge, and the unit shows as blocked, so the rulesets have to agree with the gates.

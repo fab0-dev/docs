@@ -28,10 +28,20 @@ onEnd:
 
 A **trigger** says what starts a run and what its id is:
 
-- `issue`: a tracker item of a type, or with a label. The run id is the item's number, so `/fab0:run 412` runs item `#412`.
+- `issue`: a tracker item of a type, or with a label. `/fab0:run #412` starts a run from item `#412`, and the run takes its id from the runs repository: see [run ids](#run-ids).
 - `manual`: a person starts the run and names its id, optionally matching a pattern, for example `docs-1`.
 
 A project may have several pipelines. The engine picks the one whose trigger matches the run, and asks for `--pipeline` when none or several match. A project's only pipeline, or one named with `--pipeline`, is used without checking an issue trigger; a manual trigger's id pattern is always checked.
+
+## Run ids
+
+A run started from an item takes its id when it starts: `/fab0:run #412` writes a create-only **register** fact in the runs repository, `register/<id>.yaml`, with the next free number, and comments the id on the item. Every later command reaches the run by that id, `/fab0:run 12`, or by no argument at all: a bare `/fab0:run` goes on with the only run that has work in this checkout, and asks which when several have. `#412` again goes on with the run the item has.
+
+The id is one number across every factory that shares the runs repository, and a [call](connected-factories.md)'s child run takes its parent's id. So run 12 is one piece of work everywhere: its folder in each factory's part of the runs repository, `runs/<project>/12/`, and its branches in every repository, `fab0/12/…`. The child's item still has a number of its own, in its own repository, so its people have an item to discuss.
+
+Why not the item's number, as before 0.9: two factories sharing a runs repository, or a child factory's own runs, would have runs of the same number for different work. A run of 0.8 or before keeps its item's number as its id, and `#<n>` finds it. A manual run's id is the name a person gives.
+
+`status` and the inbox give each run its **position**, one line that says where it is: `run 12 · feature · acme/product#52 · pass 3 · at api (child acme/api#3) | web (implement 1/2)`. A pass is one session taking the run up.
 
 ## Steps and their executors
 

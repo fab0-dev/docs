@@ -21,7 +21,7 @@ Exactly one of:
 
 | Field | Meaning |
 |---|---|
-| `issue` | A tracker item starts a run, and the run id is its number. Give `type` (an issue type, such as `Story`), `label`, or both |
+| `issue` | A tracker item starts a run: `/fab0:run #<n>` gives the run an id from the runs repository's [register](ledger.md#the-register), and a call's child run has its parent's id. A run of 0.8 or before kept its item's number as its id. Give `type` (an issue type, such as `Story`), `label`, or both |
 | `manual` | A person starts the run and names its id. `id` is a regular expression the id must match, for example `^docs-` |
 
 ## `inputs` and `outputs`
@@ -121,14 +121,14 @@ Runs a pipeline of a [connected factory](project.md#factories) as a child run: i
 
 | Field | Required | Meaning |
 |---|---|---|
-| `call` | yes | `factory`: a connected factory from `factories`, or `unit.<field>` inside a `foreach`; and `pipeline`: one of its pipelines |
+| `call` | yes | `factory`: a connected factory from `factories`; and `pipeline`: one of its pipelines |
 | `id` | no | The call's name, in its units' ids. Default `call-<factory>` |
 | `inputs` | no | Per child input, the artifact of this factory bound to it. It may be an artifact another call receives: the child's steps that read it wait until it is accepted |
 | `outputs` | no | Per child output this factory takes, the `store` artifact of this factory that receives it, which is the format it accepts; or `artifact` and `optional: true`, for an output the call doesn't wait for |
 | `gate` | no | The acknowledgement of what the child hands back. `none` (default) accepts an output in the accepted format. `auto` with an `agent`, or `human`, answers each one. It takes no `merge`, `retry` or `then` |
 | `after` | no | As for a step node |
 
-A called pipeline may not call another factory itself, and a call's `auto` gate is an agent, not a command; `validate` refuses both until a factory needs them. A person acknowledges in a review pull request of the runs repository, not by a label, so a `human` gate on a call needs `store.github`.
+A called pipeline may not call another factory itself, and a call's `auto` gate is an agent, not a command; `validate` refuses both until a factory needs them. A child run has its parent's id, so a pipeline calls a given factory once, and not inside a `foreach`: `validate` refuses a second call to one factory, and a call in a `foreach`, until a run needs them. A person acknowledges in a review pull request of the runs repository, not by a label, so a `human` gate on a call needs `store.github`.
 
 ## `gate`
 
@@ -144,7 +144,7 @@ A human gate:
 | Field | Meaning |
 |---|---|
 | `owner` | The role whose turn it is. Default: the repository's owner |
-| `via` | `pr` (default): a person merges the unit's pull request. `label`: a person adds `label` to the run's item, for units without a pull request |
+| `via` | `pr` (default): in a product repository, a person merges the unit's pull request; in the runs repository, the owner approves its review pull request with a review, and `apply` records the decision and merges it. `label`: a person adds `label` to the run's item, for units without a pull request |
 | `label` | The label, with `via: label` |
 
 An auto gate:

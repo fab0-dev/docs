@@ -9,7 +9,7 @@ A run works on its own branch. Each unit works on a sub-branch of it, in its own
 - A unit's inputs are read at its parent's head, and its ledger entry records that commit. So a unit sees exactly what was merged before it.
 - A repository gets the run's pull request into the base branch, usually as a draft, once its run branch has work the base branch lacks. Each run pull request closes the run's tracker item.
 - When a unit is accepted, its branch merges into its parent: by `apply` for gate `none`, for `merge: auto`, and for a human gate decided by a label; by a person merging its pull request otherwise.
-- At the end, the run's pull requests carry everything into the base branch. A person merges them.
+- At the end, the run's pull requests carry everything into the base branch. A person merges them, unless the project's merge policy lets `apply` do it with `pr.merge`; see [who merges](gates.md#who-merges).
 
 ```text
 main
