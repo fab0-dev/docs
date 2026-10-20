@@ -65,4 +65,4 @@ Run `fab0-resolve validate` in the parent. It reads each connected factory's wir
 
 Run `/fab0:run #<item>` in the parent. The run takes its id, for example `12`. When it reaches the call, it files the child run's item and stops. The child run has the parent's id: in the connected factory's checkout, its people find run 12 with `/fab0:inbox`, and run it with `/fab0:run`, or `/fab0:run 12` when they have several. Run `/fab0:run` in the parent again to acknowledge what comes back and go on.
 
-With `/fab0-watch` on in each checkout, nobody types those commands: each factory's session goes on with its own run when the engine says it has work, a child as soon as its call starts it and the parent as soon as a child hands something back. People only review. `fab0-resolve status 12 --tree` in the parent shows the parent and each child where they are. See [watch a run](watch-a-run.md).
+`fab0-resolve status 12 --tree` in the parent shows the parent and each child where they are.

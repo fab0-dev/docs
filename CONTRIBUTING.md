@@ -65,7 +65,7 @@ Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https
    fab0-resolve validate
    ```
 
-**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run #<issue number>`; after that, `/fab0:run` goes on with it, or `/fab0-watch` does when a review lets it. `/fab0:inbox` shows what is waiting for you. Each item's state shows in the `Waiting on` field of the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
+**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run #<issue number>`; after that, `/fab0:run` goes on with it. `/fab0:inbox` shows what is waiting for you. Each item's state shows in the `Waiting on` field of the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
 
 ## Checks
 

@@ -38,13 +38,9 @@ With no argument, the session goes on with the only run in this checkout that ha
 - `fab0-resolve status 12` gives every unit's state, and the run's position. With `--tree`, it shows each child run the run's calls started, where it is.
 - `fab0-resolve log 12 --follow` follows the run's events from any terminal on this machine.
 
-## 4. Let it continue by itself
-
-Instead of typing `/fab0:run` after each review, turn on the watch: it goes on with the run in the session when the engine says it has work. See [watch a run](watch-a-run.md).
-
 ## A child run
 
-A run that another factory's call started has the caller's id. In your factory's checkout, `/fab0:inbox` lists it under that id, as called by the other factory. Run it with `/fab0:run`, or `/fab0:run 12` when you have several runs open, or let `/fab0-watch` take it. See [connect a factory](connect-a-factory.md).
+A run that another factory's call started has the caller's id. In your factory's checkout, `/fab0:inbox` lists it under that id, as called by the other factory. Run it with `/fab0:run`, or `/fab0:run 12` when you have several runs open. See [connect a factory](connect-a-factory.md).
 
 ## A run from before 0.9
 

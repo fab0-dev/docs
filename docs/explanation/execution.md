@@ -102,20 +102,6 @@ With `--follow` it prints what is logged, then each new event within about two s
 
 You don't have to type the command: `/fab0:run` shows it once, at the start of the run's first round, to paste into another terminal. It gives the engine's absolute path, `log <run> --follow`, and `--project` with the home checkout's path. And `/fab0:inbox` shows each open run's latest event, its time and line, beside the run. A run with no events on this machine shows none.
 
-## The watch
-
-A run waits often: for a person's review, for a child run in another factory, for another machine. Without the watch, someone notices and types `/fab0:run` again. `/fab0-watch` does that in the session.
-
-It is a Claude Code mod in the `fab0` plugin. On a timer it runs `fab0-resolve tick`: one deterministic pass over the checkout's open runs, which says what changed since the last tick and what should happen next. The watch shows that, in a band above the prompt, the status line, transcript lines and notifications, and acts on it:
-
-- **While the session is idle**, the tick settles the runs first, as `apply` does. A person's approval is recorded and its review pull request merged, and actions are applied, with no model.
-- **When the engine says `continue`**, because a run has work for a session here, the watch runs `/fab0:run <run>`, as if the person typed it. The session's permission mode and the merge guard hold as for any turn.
-- **When a run waits on a person**, it says on whom and where, and notifies. It never decides for a person: human gates stay human.
-
-The engine decides; the watch only reads its answer. That keeps routing in one place, and lets any other surface, such as a service later, read the same answer. Its guards keep it from running away: one run at a time, never twice on the same work (a run that went nowhere is said once), a cap an hour, and a pause when the person stops a turn it started.
-
-A long wait costs little. A tick runs no model, and through a quiet wait the ticks slow down to one every ten minutes. Nothing is lost while no session runs: each tick reads the whole state again. A session opened later takes the watch up, says what changed meanwhile, and goes on. The conversation can be cleared at any wait, since a run's state is the engine's, not the conversation's. See [watch a run](../how-to/watch-a-run.md).
-
 ## Hand-outs and briefs
 
 A hand-out tells the session everything it needs for one unit: the branches to create and the worktree to work in, what the unit may change, its executor, and the JSON schema its reply must match. A unit with `store` outputs also gets an **outbox**: a folder under the home repo's git directory, outside every checkout, where its agent writes them.
