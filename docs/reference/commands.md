@@ -1,6 +1,6 @@
 # Commands
 
-The `fab0` plugin adds the engine, `fab0-resolve`, to the Bash `PATH` of every Claude Code session, two slash commands, and the watch, a Claude Code mod with a command of its own. It needs [`uv`](https://docs.astral.sh/uv/), and an authenticated [`gh`](https://cli.github.com/).
+The `fab0` plugin adds the engine, `fab0-resolve`, to the Bash `PATH` of every Claude Code session, and two slash commands. It needs [`uv`](https://docs.astral.sh/uv/), and an authenticated [`gh`](https://cli.github.com/).
 
 ## Slash commands
 
@@ -8,7 +8,6 @@ The `fab0` plugin adds the engine, `fab0-resolve`, to the Bash `PATH` of every C
 |---|---|
 | `/fab0:run [#<item> \| <run>] [--pipeline P] [--profile P] [--unit U]` | Runs the pipeline for one run until it needs a person, is blocked or is done: `next --apply`, the hand-outs, `record`, and again. `#<item>` starts a run from an item of the home repository, or goes on with the run it has; `<run>` names a run by its id; with neither, it goes on with the only run that has work here, and asks which when several have (`pick`). It first runs `start '<argument>' --session`, which counts the session as one more pass over the run, and it ends with the run's position. It shows the start and end lines, the agents' activity, what `apply` did and each unit's duration as it goes, and, once at the start of the first round, the `log --follow` command that follows the run from another terminal. See [running a pipeline](../explanation/execution.md) |
 | `/fab0:inbox [--as USER]` | Shows every open run, where it is, what waits on you, what anyone can run, and what is blocked, and beside each run its latest event, when it has one on this machine. An item no run has started shows with `/fab0:run #<n>`. Read-only |
-| `/fab0-watch [<run> \| pane \| stop \| pause \| auto on \| auto off]` | Watches this checkout's open runs, or one run, in the session: it runs `tick` on a timer, shows where each run is and what waits on whom, and goes on with a run by itself, with `/fab0:run`, when `tick` says `continue`. See [the watch](#the-watch). It is a mod, and a mod's command can't hold a colon, hence the dash |
 
 The plugin also has a `fab0:github` skill, which checks and prepares GitHub for a factory. See [set up GitHub](../how-to/github-setup.md).
 
@@ -26,7 +25,6 @@ Every command prints one JSON object, except `log`, which prints text when it su
 | `fab0-resolve apply <run>` | Performs what is due: actions, merges, pull requests, comments, signals. For a unit reviewed in the runs repository, it puts the latest outputs on its review branch, opens its review pull request, and records a person's edit on that branch as their attempt. Once the gate's owner approves the latest version, with a review or, on a pull request they opened, a comment `/approve`, it records the approval as the attempt's gate decision, then merges the review pull request at the commit approved. Nobody merges there by hand. A unit with no pull request gets its questions or escalation on the run's item. It also pushes what a record couldn't. It starts a call's child run and binds a called run to its call, hands back each output a caller takes once its unit is done, and opens the review pull request in which a person acknowledges what a child handed back, by an approving review that `apply` records and merges. Writes to git, the run store and the tracker. The result carries `follow`, the command that follows the run with `log --follow` |
 | `fab0-resolve inbox` | Every open run of the project, and what it needs from whom. It finds runs in the run store, in run branches with unmerged work, and in tracker items that match a trigger. Each run carries its `position`, its `item`, its `command`, and its `rank`, what a session here would do in it now: `interrupted`, `agent` or `actions`. An item no run has started carries `start`, and its command is `/fab0:run #<n>`. A child run carries `called`, the factory (`by`) and the `call` that started it. A unit another machine claimed waits on it, with no owner. A call waiting on its child run carries `child`, its item, `command`, the `/fab0:run` to run there with the run's own id, which the child run shares, and `in`, the connected factory's checkout. Each run that has events on this machine carries `latest`, the `time` and `line` of its last event. Read-only |
 | `fab0-resolve pick` | The run a bare `/fab0:run` goes on with: `pick`, the only open run with a `rank`, else none. `runs` lists every run that has one, ranked: `interrupted` first, then `agent`, then `actions`. With none, `waiting` says what waits on whom, and `start` lists the items to start. It never picks an item no run has started. Read-only |
-| `fab0-resolve tick [--run RUN] [--settle]` | One pass over the open runs for [the watch](#the-watch): it fetches the repositories, pulls the run store and, with `--settle`, performs what is due, as `apply` does. Then, per run, it says what changed since the last tick and what should happen next. See [`tick`](#tick). No model runs in it |
 | `fab0-resolve log <run>` | Prints the run's [event log](#the-event-log): one line for each event, oldest first, its time (UTC) and its line. With `--follow`, keeps printing new events. Reads only the home checkout's git directory: no wiring, tracker or `gh`, and no version check. Read-only |
 | `fab0-resolve --version` | The fab0 release of the engine |
 
@@ -41,60 +39,6 @@ Its result holds what `apply` gives (`applied`, with what it did, `kind`, and `f
 - **When `apply` fails**, for example on a merge conflict with the base, the command exits with `apply`'s code and error, and hands out and claims nothing.
 
 `next` and `apply` without `--apply` behave as before, so they can still be run one after the other.
-
-### `tick`
-
-`tick` compares each open run with its snapshot of the last tick, `fab0/watch/<run>.json` in the home repo's git common directory, which is local like the event log. An item no run has started isn't ticked. Its answer, checked by `plugins/fab0/schemas/tick.json`:
-
-| Field | Meaning |
-|---|---|
-| `ok` | `true` |
-| `settled` | Whether `apply` ran first (`--settle`) |
-| `runs` | One entry per open run, below. A run that ended since the last tick is in it once, as `done` |
-| `runs[].run` | The run id |
-| `runs[].pipeline` | Its pipeline |
-| `runs[].position` | Where it is, as `status` says it |
-| `runs[].verdict` | What should happen next, the most pressing first: `done`, it ended since the last tick; `continue`, a session here has work in it (a unit, a gate or an acknowledgement to hand out, an interrupted hand-out, or without `--settle` actions to apply); `person`, it waits on a person; `child`, it waits on another factory's child run; `idle`, nothing here moves it |
-| `runs[].events` | What `apply` did, and each unit whose state, reason or attempt changed, as lines such as `spec: waiting (gate human) → done` |
-| `runs[].waits` | The units that wait on someone, as `inbox` lists them |
-| `runs[].signature` | A hash of what a session would hand out now. A `/fab0:run` that leaves the same signature went nowhere |
-| `runs[].first` | `true` when the tick looks at the run for the first time on this checkout: there is nothing to compare with yet |
-| `skipped` | Runs it couldn't read, with `why` |
-| `warnings` | As for every command |
-
-The engine decides the verdict, never the watch. The exit code sums it up for a script: 10 when a run says `continue`, else 11 when a run waits on a person and something changed in it or it is a first look, else 0.
-
-### The watch
-
-`/fab0-watch` is a Claude Code mod in the `fab0` plugin: a TypeScript hooks module, `hooks/watch.tsx`, which Claude Code loads in every session where the plugin is enabled. It runs the plugin's own `bin/fab0-resolve tick`, never one on `PATH`, and shows what it says. It decides nothing itself.
-
-| Command | What it does |
-|---|---|
-| `/fab0-watch` | Watches every open run of this checkout, and goes on with them by itself |
-| `/fab0-watch <run>` | Watches one run |
-| `/fab0-watch pane` | Opens the pane: each run's position, its waits with links to their pull requests, its child runs, and its last events here |
-| `/fab0-watch pause` | Shows the runs, and goes on with none until `/fab0-watch` again |
-| `/fab0-watch auto off` | Only shows the runs; `auto on` lets it go on with them again |
-| `/fab0-watch stop` | Stops watching, and forgets the watch for the next session |
-
-What it shows: a band above the prompt, with each run's position and what it waits on; the status line; a dim transcript line for each event; a toast, and a native notification, when a person is newly waited on or a run is done. In the desktop app, where a session has no terminal to notify, it uses the system's own notification on macOS.
-
-When it acts: while the session is idle it ticks with `--settle`, so an approval is recorded and merged, and actions applied, with no model. When a run's verdict is `continue`, it runs `/fab0:run <run>`, queued until the session is idle, as if the person typed it. A tick while a turn runs only looks.
-
-Its guards: one run at a time; never again on the signature it last went on with, which it says once instead; at most `watch_per_hour` starts an hour, then a pause; and a pause when the person stops the turn it started.
-
-When it ticks: a minute after something changed, then every two, four, and up to ten minutes through a quiet wait. The end of a turn, or a command, brings the next tick at once.
-
-Across sessions: the watch is kept per checkout. A session opened while it was on takes it up, and its first tick says what changed meanwhile. A `/clear` keeps it too.
-
-Its options, set under `/config` or in `pluginConfigs` in `settings.json`:
-
-| Option | Default | Meaning |
-|---|---|---|
-| `watch_per_hour` | 6 | The most times an hour the watch starts `/fab0:run` by itself, before it pauses |
-| `watch_fresh` | `false` | Clear the session before each `/fab0:run` the watch starts. A run's state is the engine's, so a long pipeline loses nothing, and keeps its context small |
-
-See [watch a run](../how-to/watch-a-run.md).
 
 ### Options
 
@@ -112,8 +56,6 @@ See [watch a run](../how-to/watch-a-run.md).
 | `--output FILE` | `record` | A command gate's output, kept as the finding when it fails |
 | `--session` | `start` | Count a session taking the run up: one more `pass` event in the run's event log |
 | `--tree` | `status` | Also where each child run of the run's calls is |
-| `--run RUN` | `tick` | Only this run |
-| `--settle` | `tick` | Perform what is due first, as `apply` does |
 | `--follow` | `log` | After the events already logged, keep printing each new one, checking about once a second, until interrupted. Ctrl-C ends it with exit 0 |
 
 ### The event log
@@ -148,8 +90,6 @@ An engine of the same or a newer release runs as before. With no install record 
 | 2 | A usage error, for example an unknown pipeline |
 | 3 | The wiring is invalid; `errors` lists each problem with its file |
 | 4 | Refused, for example a reply that doesn't match its schema, or a unit that wasn't handed out |
-| 10 | `tick`: a run has work to go on with |
-| 11 | `tick`: a run waits on a person, and something changed in it |
 
 ### Environment
 

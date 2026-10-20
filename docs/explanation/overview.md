@@ -60,8 +60,6 @@ fab0's design follows a few principles. Each has a reason.
 | **export** | One version of a child's output, handed back once the unit that wrote it is done |
 | **acknowledgement** | The parent's answer to an export, accepted or rejected, which the call's gate decides |
 | **join** | A call is done once every output it waits for has an accepted version. Then the parent's next step starts |
-| **tick** | One pass of the engine over a checkout's open runs: what changed since the last one, and what should happen next. No model runs in it |
-| **watch** | The `/fab0-watch` mod: it ticks in a session, shows the runs, and goes on with one when the engine says so |
 | **example** | A complete factory in [`fab0-dev/fab0-examples`](https://github.com/fab0-dev/fab0-examples), to copy into a project. See [examples](examples.md) |
 
 ## Where to go next

@@ -2,7 +2,7 @@
 
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
-These pages describe the latest release of the `fab0` plugin, 0.9. It gives a run one id, from the runs repository, which its child runs share; people decide in the runs repository by review, and fab0 merges; and the watch, `/fab0-watch`, goes on with runs in the session when a review or a child lets them. 0.8 connects factories: a step of one factory runs a pipeline of another, in another repository. Since 0.7, what a run produces for itself, its ledger and its working files, is kept in a run store, so your repositories receive only product changes.
+These pages describe the latest release of the `fab0` plugin, 0.9. It gives a run one id, from the runs repository, which its child runs share; and people decide in the runs repository by review, and fab0 merges. 0.9.1 withdraws the watch, `/fab0-watch`, that 0.9.0 added. 0.8 connects factories: a step of one factory runs a pipeline of another, in another repository. Since 0.7, what a run produces for itself, its ledger and its working files, is kept in a run store, so your repositories receive only product changes.
 
 ## Status markers
 
@@ -20,7 +20,7 @@ These pages describe the latest release of the `fab0` plugin, 0.9. It gives a ru
 - [Dependencies and blocking](explanation/dependencies.md): unit states, and the tracker's relations
 - [Connected factories](explanation/connected-factories.md): calling another repository's factory, what passes between them, and who judges what
 - [Artifacts and the ledger](explanation/artifacts-and-ledger.md): kinds, the run store, staleness, checks, the record
-- [Running a pipeline](explanation/execution.md): the engine, the session, the loop, and the watch
+- [Running a pipeline](explanation/execution.md): the engine, the session, and the loop
 - [The tracker](explanation/tracker.md): what fab0 reads from GitHub, and what it writes
 - [Examples](explanation/examples.md): ready-made factories, and how to take one
 
@@ -29,7 +29,6 @@ These pages describe the latest release of the `fab0` plugin, 0.9. It gives a ru
 - [Build your first factory](how-to/build-your-first-factory.md)
 - [Use an example](how-to/use-an-example.md)
 - [Start and continue a run](how-to/start-and-continue-a-run.md)
-- [Watch a run](how-to/watch-a-run.md)
 - [Connect a factory](how-to/connect-a-factory.md)
 - [Set up GitHub](how-to/github-setup.md), with the runs repository
 - [Choose how a pipeline uses git](how-to/choose-git-workflow.md)
@@ -43,7 +42,7 @@ These pages describe the latest release of the `fab0` plugin, 0.9. It gives a ru
 - [Returns and verdicts](reference/returns-and-verdicts.md): what agents reply
 - [Ledger entry](reference/ledger.md): attempts, gate decisions, claims, link facts, and the register of run ids
 - [Actions](reference/actions.md): the catalogue
-- [Commands](reference/commands.md): `/fab0:run`, `/fab0:inbox`, `/fab0-watch`, `fab0-resolve`, and `tick`
+- [Commands](reference/commands.md): `/fab0:run`, `/fab0:inbox` and `fab0-resolve`
 
 ## Repositories
 

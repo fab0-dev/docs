@@ -33,7 +33,6 @@ PAGES = {
         "link-export.json",
         "link-ack.json",
     ],
-    "commands.md": ["tick.json"],
 }
 
 
