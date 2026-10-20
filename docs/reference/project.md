@@ -36,6 +36,7 @@ pipelines: [story]
 | `git` | no | The git workflow |
 | `parallel` | no | Limits and policy for parallel units |
 | `store` | yes | The run store: the runs repository that holds what runs produce for themselves. See below |
+| `tracking` | no | The run tracker: an issue for each run and each of its steps, whose fields carry the run's state. See below |
 | `pipelines` | yes | The names of the pipelines, each a file in `.fab0/pipelines/` |
 | `models` | yes | Model classes, per harness |
 | `profiles` | no | Changes to this file, chosen at run time |
@@ -121,6 +122,39 @@ The run store is a git repository, the **runs repository**, that holds what runs
 `validate` checks that the store can be reached: through its checkout's `origin`, else through `github`. A store it can't reach is invalid wiring. A store with no remote is local, and one with no checkout yet is started by its first write. The `fab0:github` skill creates the runs repository and its ruleset; see [set up GitHub](../how-to/github-setup.md).
 
 fab0 0.6's `ledger` block (`path` and `branch`) is gone: `validate` refuses it, with a hint to use `store`.
+
+## `tracking`
+
+The run tracker keeps each run as an issue, and each of its units (a step, a foreach element, a call) as a sub-issue of it. The issues' fields carry the run's state between steps and between factories, and their comments are its log. A root run's id is its issue's number, and a child run is a sub-issue of its parent's run with the parent's Run ID. fab0 0.10 runs on it; in this release `validate` checks it, and runs don't use it yet.
+
+The first kind is `github`: issues of two issue types of the organization, with its native Issue Fields, in one repository that every factory of a product shares. An organization admin creates the types and fields once, under Settings → Planning, and pins each field to the types that carry it.
+
+```yaml
+tracking:
+  kind: github
+  github: acme/product-runs
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `kind` | yes | `github` |
+| `github` | yes | The repository that holds the runs' issues, as `owner/name` |
+| `types` | no | The issue types, by `run` and `step`. Default: `Pipeline Run`, `Pipeline Step` |
+| `fields` | no | The issue fields' names, by what they hold. Default: the table below |
+| `status` | no | The values of the status field, by state: `todo`, `in_progress`, `done`, and any more a factory adds, such as `blocked`. Default: `Todo`, `In Progress`, `Done` |
+
+| Field | Default name | Type | On | Holds |
+|---|---|---|---|---|
+| `run_id` | Run ID | text | run, step | The root run's number |
+| `status` | Stage | single select | run, step | The state: the values of `status`. GitHub reserves the name Status |
+| `pipeline` | Pipeline | text | run | The pipeline the run runs |
+| `factory` | Factory | text | run | The factory whose run it is |
+| `step` | Step | text | run, step | On a run, its steps in progress; on a step, its unit |
+| `waiting` | Waiting on | text | run, step | The `@login` or role it waits on |
+| `revision` | Revision | number | step | The step's attempt, raised on each rework |
+| `output` | Output | text | step | The step's pull request in review, then the commit it was accepted at |
+
+`validate` reads the organization's issue types and fields. A missing or disabled type, a missing field, a field of another type, or a status value the field has no option for is invalid wiring. A field that isn't pinned to a type that carries it is a warning, since GitHub then shows it only on demand.
 
 ## `models`
 
