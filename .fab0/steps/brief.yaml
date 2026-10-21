@@ -4,6 +4,7 @@ model: deep
 skills: [docs-style, example-skills:doc-coauthoring]
 inputs: [intent, reviews]          # the planner reads docs/ and the sources through repos.read
 outputs: [brief, tasks]
-repos: {read: [all]}
+repos: {write: [runs], read: [all]}
+paths: ["runs/docs/{run}/**"]
 return: {questions: optional}
 owner: docs-owner

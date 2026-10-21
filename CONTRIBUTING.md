@@ -30,23 +30,23 @@ Write one kind of page per file. Link to the other kinds instead of mixing them.
 
 ## Running a Docs issue
 
-A Docs issue runs this repository's own fab0 factory (`.fab0/`) on its own branch, `fab0/<issue>/base`:
+A Docs issue runs this repository's own fab0 factory (`.fab0/`) on its own branch, `fab0/<run>/base`. The run's state is on its issues in [`fab0-dev/fab0-runs`](https://github.com/fab0-dev/fab0-runs): a Pipeline Run under the Docs issue, whose number is the run id, with a Pipeline Step for each step.
 
 | Step | Who | What | Gate |
 |---|---|---|---|
-| start | `apply` | the run branch; its draft pull request into `main`, which closes the issue, opens once the first page is merged into it | — |
-| `brief` | `docs-planner` | compares the docs with fab0's sources and writes the brief (findings, outline, acceptance checks) and its task list, which fab0 keeps in the run store, [`fab0-dev/fab0-runs`](https://github.com/fab0-dev/fab0-runs), under `runs/docs/<run>/` | **human**: the docs owner approves the brief's review pull request in `fab0-dev/fab0-runs`, and fab0 merges it |
+| start | `apply` | the run branch, in each repository the run may write. A draft run pull request into `main`, which closes the issue, opens in each repository whose run branch gets work: in `fab0-dev/fab0-runs` once the brief is merged, here once the first page is | — |
+| `brief` | `docs-planner` | compares the docs with fab0's sources and writes the brief (findings, outline, acceptance checks) and its task list, files of `fab0-dev/fab0-runs` under `runs/docs/<run>/` | **human**: the docs owner approves their pull request in `fab0-dev/fab0-runs`, with an approving review or `/approve`, and fab0 merges it |
 | tasks | `apply` | one Task sub-issue per page or section | — |
 | `write`, per task | `docs-writer` | writes the page, in parallel with tasks whose files don't overlap | **auto**: `docs-reviewer`, on a different model; on approval `apply` merges the page into the run branch |
-| end | `apply` | closes the Task sub-issues, brings `main` in, marks the run's pull request ready | **human**: the docs owner merges it into `main` |
+| end | `apply` | closes the Task sub-issues, brings `main` in, and merges the run's pull requests into `main` once their required checks pass | — |
 
-The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill. Ask for changes to a brief or a page with a review on its pull request; a Comment review is enough. You can also edit the brief on its review branch; your edit counts as your own version of it.
+The agents are in `.claude/agents/`. They share the project skill `.claude/skills/docs-style/`, which defines the page kinds, the style, the brief format and the review checklist. The planner also uses Anthropic's `doc-coauthoring` skill. Ask for changes to a brief or a page with a review on its pull request; a Comment review is enough.
 
 Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https://github.com/fab0-dev/fab0).
 
 **Setup,** once per clone:
 
-1. Check out [`fab0`](https://github.com/fab0-dev/fab0), [`fab0-core`](https://github.com/fab0-dev/fab0-core) and [`fab0-examples`](https://github.com/fab0-dev/fab0-examples) beside this repository. The planner reads them as sources, and `scripts/check-reference.py` reads the schemas from `fab0-core`.
+1. Check out [`fab0`](https://github.com/fab0-dev/fab0), [`fab0-core`](https://github.com/fab0-dev/fab0-core), [`fab0-examples`](https://github.com/fab0-dev/fab0-examples) and [`fab0-runs`](https://github.com/fab0-dev/fab0-runs) beside this repository. The planner reads the first three as sources, `scripts/check-reference.py` reads the schemas from `fab0-core`, and the brief is written in `fab0-runs`.
 2. Open Claude Code here and trust the folder.
 3. Install the two plugins this repository enables:
 
@@ -65,7 +65,7 @@ Findings that need a code change are filed as Stories in [`fab0-dev/fab0`](https
    fab0-resolve validate
    ```
 
-**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run #<issue number>`; after that, `/fab0:run` goes on with it. `/fab0:inbox` shows what is waiting for you. Each item's state shows in the `Waiting on` field of the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
+**Run:** open an issue of type Docs with the intent in its body, then `/fab0:run #<issue number>`; after that, `/fab0:run` goes on with it. `/fab0:inbox` shows what is waiting for you. The run's Pipeline Run shows where it is, and each item's state shows in the `Waiting on` field of the [fab0 docs board](https://github.com/orgs/fab0-dev/projects/2).
 
 ## Checks
 
