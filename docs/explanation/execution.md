@@ -102,6 +102,8 @@ An agent's hand-out carries a **brief**: the whole assignment, in plain text. It
 
 So any Claude Code agent can be a step. It needs no knowledge of fab0, only of its craft.
 
+The brief is also a file, under the home checkout's git directory (`.git/fab0/briefs/`), and its last line is `<!-- end of brief -->`. The hand-out's `prompt` is one sentence that names the file, and the session passes it to the agent as it is. A brief can run to tens of kilobytes, and copying it into the agent's prompt costs the session minutes per hand-out. A copy cut off midway would leave the agent half its assignment; with the last line to check for, the agent can tell.
+
 A gate's brief adds the producer's summary and the command that shows the change, and asks for a verdict. A call's gate gets what the child run handed back and what the call asked for.
 
 ## Worktrees

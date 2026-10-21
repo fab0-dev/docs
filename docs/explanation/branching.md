@@ -68,7 +68,7 @@ Before a unit merges, `apply` tests whether its branch merges cleanly into its p
 
 The run's pull requests carry its result into the base branch. `onEnd` typically brings the base branch into each run branch with work (`git.sync-base`), so each pull request shows the result as it will land. Then:
 
-- **`pr.merge`** opens the pull request of any repository that has none yet, waits for each one's required checks, and merges each one through GitHub. A ruleset on the base branch that requires a pull request applies, so the base stays protected while nobody has to merge by hand. Every example that writes a repository (`story`, `feature`, `delivery`) ends this way.
+- **`pr.merge`** opens the pull request of any repository that has none yet, waits for each one's required checks, and merges each one through GitHub. Where the base branch requires no checks, it merges in the same pass. Where it does, the checks start only once the pull request is ready, so the pass that opens it waits, and a later `/fab0:run` merges. A ruleset on the base branch that requires a pull request applies, so the base stays protected while nobody has to merge by hand. Every example that writes a repository (`story`, `feature`, `delivery`) ends this way.
 - **`pr.ready`** opens what is missing and marks each one ready, and a person merges them.
 
 Merging them ends the run.
