@@ -205,7 +205,7 @@ done: {pr: {repo: runs, state: approved}}
 |---|---|---|
 | `repo` | no | Where the pull request is: a key of `repos`, the runs repository's too. Default: the repository the step writes first |
 | `head` | no | The pull request's branch. Default: the step's own branch |
-| `state` | yes | `merged`: it is merged. `approved`: the gate's owner approved its head, with an approving review or a comment whose first line is `/approve`, and `apply` merges it |
+| `state` | yes | `merged`: it is merged. `approved`: the gate's owner approved its head, with an approving review or a comment whose first line is `/approve` (or `/approved`), and `apply` merges it |
 
 A step with `done: pr` must have a pull request: it writes a repository, or a file in one. An action step has none. `approved` needs a `human` gate via `pr`. A pull request named by `head`, or in another repository than the step's, holds once it is merged.
 
