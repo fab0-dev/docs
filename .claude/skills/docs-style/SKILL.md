@@ -34,7 +34,7 @@ Every page is exactly one kind. Decide the kind before writing, from what the re
 ## Writing
 
 - **Plain and short.** One idea per sentence. Cut words that carry nothing ("simply", "just", "in order to", "it should be noted").
-- **Active voice, present tense** for what fab0 does: "`record` writes the ledger entry", not "the ledger entry will be written".
+- **Active voice, present tense** for what fab0 does: "`record` writes the attempt on its Pipeline Step", not "the attempt will be written".
 - **Second person** in how-to and tutorial steps: "Run `fab0-resolve validate`."
 - **Headings** in sentence case. No heading that only repeats the page title.
 - **Lists** for three or more parallel items, steps as numbered lists, tables for anything with two or more attributes per item.
@@ -49,10 +49,10 @@ Every page is exactly one kind. Decide the kind before writing, from what the re
 
 Use the glossary in `docs/explanation/overview.md` exactly. In particular:
 
-- **factory**, **run**, **run id**, **step**, **unit**, **attempt**, **gate**, **artifact**, **action**, **hand-out**, **brief**, **ledger**, **claim**, **example**, **home repo**: as defined there.
+- **factory**, **run**, **run id**, **step**, **unit**, **attempt**, **gate**, **artifact**, **action**, **hand-out**, **brief**, **run tracker**, **Pipeline Run**, **Pipeline Step**, **claim**, **example**, **home repo**: as defined there.
 - **pull request** in prose (not "PR"); "the run's pull request" and "a unit's pull request".
 - **repository** in prose; "repo" only in fixed terms (home repo) and in field names.
-- **merge**: a person merges a pull request, or `apply` merges a unit within the project's merge policy. Nothing else merges.
+- **merge**: `apply` merges what a step's gate and `done` leave to it, and a person merges where they leave it to a person. Nothing else merges.
 - Say **Story**, **Task**, **Docs** with a capital when they name an issue type.
 
 ## Status markers
@@ -66,7 +66,7 @@ Anything the engine or `validate` refuses as not built yet is Planned.
 
 ## The brief of a Docs run
 
-The `brief` step writes the brief, `brief.md` where its hand-out says (it is kept in the run store and reviewed in the runs repository), with exactly these sections, in this order:
+The `brief` step writes the brief, `brief.md` where its hand-out says (a file of the runs repository, reviewed in its pull request there), with exactly these sections, in this order:
 
 1. **Intent**: what the issue asks for, in two or three sentences of your own.
 2. **Readers**: who reads the result, what they already know, and what they are trying to do.
