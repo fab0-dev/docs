@@ -25,7 +25,7 @@
     {
       "id": 3,
       "prompt": "Review this sentence proposed for docs/explanation/gates.md: 'When the reviewer rejects a task, fab0 will simply re-run the implementer as many times as needed until it is approved, and a person then always merges the PR.' The pipeline schema says an auto gate's `retry` defaults to 2 and `then` to `human`, and that with `merge: auto` the engine's `apply` merges the unit within `git.auto_merge`.",
-      "expected_output": "A reject with findings: the claim is false on two counts (re-runs stop at the gate's retry, 2 by default, then `then` decides, a person by default; with `merge: auto`, apply merges the approved unit, within the merge policy, so a person doesn't always merge), plus style findings (future tense 'will', filler 'simply', 'PR' instead of 'pull request').",
+      "expected_output": "A reject with findings: the claim is false on two counts (re-runs stop at the gate's retry, 2 by default, then `then` decides, a person by default; apply merges the approved unit, as its gate and `done` say, so a person doesn't merge it), plus style findings (future tense 'will', filler 'simply', 'PR' instead of 'pull request').",
       "assertions": [
         "Flags the unlimited re-run claim as false, citing the retry limit and what follows it",
         "Flags 'a person always merges' as false: with merge: auto, apply merges within the policy",

@@ -4,22 +4,22 @@ This guide builds a small factory from scratch: an issue labelled `release-notes
 
 You need:
 
-- a GitHub repository you can push to, checked out locally, for example `acme/product`;
-- a runs repository for fab0's own records, for example `acme/product-runs`. See [the runs repository](github-setup.md#6-the-runs-repository);
-- [Claude Code](https://code.claude.com/) with the `fab0` plugin, `gh` logged in, and [`uv`](https://docs.astral.sh/uv/). See [set up GitHub](github-setup.md).
+- a GitHub repository you can push to, checked out locally, for example `acme/product`, owned by an organisation;
+- a runs repository, where each run's issues are, for example `acme/product-runs`, and the run tracker's issue types and fields in the organisation. See [set up GitHub](github-setup.md#3-the-run-tracker);
+- [Claude Code](https://code.claude.com/) with the `fab0` plugin, `gh` logged in, and [`uv`](https://docs.astral.sh/uv/).
 
 ## 1. Describe the project
 
 Create `.fab0/fab0.yaml` in the repository:
 
 ```yaml
-schema: 2
+schema: 3
 repos:
   home: {path: ., github: acme/product, owner: maintainer}
 people:
   maintainer: {github: [po-user]}
 tracker: {kind: github, owner: acme}
-store: {github: acme/product-runs}
+tracking: {kind: github, github: acme/product-runs}
 models:
   claude-code: {deep: opus, balanced: sonnet, fast: haiku}
 pipelines: [release-notes]
@@ -27,8 +27,11 @@ pipelines: [release-notes]
 
 - `repos` names the repositories the factory works in. `home` is this one, and `owner` is the role whose turn its human gates are.
 - `people` maps each role to GitHub users. Put your own login in place of `po-user`.
-- `store` names the runs repository. Each run's ledger, the record of every attempt and gate decision, goes there, so this repository receives only the notes.
+- `tracker` names the owner of the issues that start runs.
+- `tracking` names the run tracker: each run is an issue of type `Pipeline Run` in the runs repository, with a `Pipeline Step` issue for each step. Their fields and comments hold the run's state, so this repository receives only the notes.
 - `models` maps model classes to models, so steps ask for `balanced`, not a model name.
+
+This factory keeps no files in the runs repository, so it isn't in `repos`. A factory that keeps working files there, such as a spec, lists it in `repos` too, as the [`story` example](use-an-example.md) does.
 
 ## 2. Describe the artifacts
 
@@ -111,16 +114,17 @@ onStart:
   - pr.open-run: {draft: true}
 steps:
   - step: draft
-    gate: {human: {owner: maintainer}}
+    gate: {human: {owner: maintainer, via: pr}}
+    done: {pr: {state: merged}}
 onEnd:
   - git.sync-base
   - pr.ready
 ```
 
-- The trigger makes every issue labelled `release-notes` a run, with the issue's number as its id.
+- The trigger makes every issue labelled `release-notes` a run.
 - `onStart` creates the run branch. `pr.open-run` opens the run's pull request into `main`, as a draft, once the run branch has work: GitHub opens no pull request without a change.
-- The `draft` step's gate is human: the maintainer reviews the notes' pull request into the run branch, and merging it accepts them.
-- `onEnd` brings `main` into the run branch and makes sure the run's pull request is open and ready, for the maintainer to merge.
+- The `draft` step's gate is human, `via: pr`: the maintainer reviews the notes' pull request into the run branch. Its `done` says the step is done when that pull request is merged, so merging it accepts the notes. With `state: approved` instead, the maintainer's approval would accept them, and `apply` would merge.
+- `onEnd` brings `main` into the run branch and marks the run's pull request ready, for the maintainer to merge. With `pr.merge` instead, `apply` would merge it once its required checks pass.
 
 ## 6. Validate
 
@@ -130,19 +134,19 @@ From the repository's root:
 fab0-resolve validate
 ```
 
-It prints `"ok": true`, or every problem with its file. It also checks that the runs repository can be reached. Fix them, then commit `.fab0/` and `.claude/` and push them to `main`.
+It prints `"ok": true`, or every problem with its file. It also checks that the run tracker's issue types and fields exist. Fix the problems, then commit `.fab0/` and `.claude/` and push them to `main`.
 
 ## 7. Run it
 
 1. Open an issue that says what the release contains, and label it `release-notes`, for example `#7`.
-2. In Claude Code, run `/fab0:run #7`. The run takes its id from the runs repository, for example `1`, and says it on the issue. The run's branch, `fab0/1/base`, is created, the agent writes the notes, and their pull request opens against the run branch. The run then waits for you.
+2. In Claude Code, run `/fab0:run #7`. The run's Pipeline Run opens in the runs repository, under the issue, and its number is the run id, for example `3`. The run's branch, `fab0/3/base`, is created, the agent writes the notes, and their pull request opens against the run branch. The run then waits for you.
 3. Review the notes' pull request. To ask for changes, leave a review and run `/fab0:run` again; with only this run open, it needs no argument, and the agent revises the notes from your review. Merge the pull request to accept them.
-4. Run `/fab0:run` once more. The run branch now has the notes, so the run's pull request opens, and `onEnd` marks it ready. Merge it into `main`.
+4. Run `/fab0:run` once more. The run branch now has the notes, so the run's pull request opens, and `onEnd` marks it ready. Merge it into `main`. The next `/fab0:run` finds the run done, and closes its Pipeline Run.
 
-`fab0-resolve status 1` shows every unit's state, and where the run is, at any point, and `/fab0:inbox` shows what waits on whom. After your review, run `/fab0:run` again to go on.
+The Pipeline Run and its Pipeline Step show where the run is at any point, and `/fab0:inbox` shows what waits on whom; see [follow a run](follow-a-run.md).
 
 ## Next steps
 
-- Add a reviewer agent as an [auto gate](../explanation/gates.md#auto-gates), so notes reach you already reviewed.
-- Split larger work with [`foreach`](../explanation/pipelines.md#operators), as the `story` example does.
+- Add a reviewer agent as an `auto` gate, so notes reach you already reviewed. See [gates](../explanation/gates.md).
+- Split larger work with `foreach`, as the `story` example does. See [pipelines and steps](../explanation/pipelines.md).
 - Look up any field in the [reference](../index.md#reference).

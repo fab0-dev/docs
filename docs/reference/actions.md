@@ -1,6 +1,6 @@
 # Actions
 
-The catalogue of fab0's built-in actions. An action is a step, or an entry in a pipeline's or block's `onStart` or `onEnd`. `apply` performs it; nothing else does. Each action has a read-only check: when the check passes, the action is done, so it writes no ledger entry and performing it twice changes nothing.
+The catalogue of fab0's built-in actions. An action is a step, or an entry in a pipeline's or block's `onStart` or `onEnd`. `apply` performs it; nothing else does. Each action has a read-only check: when the check passes, the action is done. Its result is a fact in git or on GitHub, so it records no attempt, and performing it twice changes nothing.
 
 ```yaml
 onStart:
@@ -17,13 +17,13 @@ Arguments may use the [step placeholders](step.md#placeholders), such as `{run.t
 | `git.run-branch`, `git.sync-base`, `pr.open-run`, `pr.ready`, `pr.merge` | The pipeline's `onStart` or `onEnd`: they act on the whole run |
 | `tracker.child.sync` | A `foreach`'s `onStart` |
 | `tracker.child.close` | A `foreach`'s `onEnd` |
-| Every other action | Anywhere: `onStart`, `onEnd`, or as a step |
+| Every other action | Anywhere: `onStart`, `onEnd`, or as a step. As a step, it declares a [`done`](pipeline.md#done), an issue's status, since an action has no pull request. An action step has no Pipeline Step: its check decides when it is done |
 
-A [`call`](pipeline.md#call) and a called pipeline have actions of their own, which no wiring names: `call.start`, which files the child run's item and records the call, and `call.bind`, which a called run starts with. `apply` performs them like any other.
+A [`call`](pipeline.md#call) has an action of its own, which no wiring names: `call.start`, which opens the child's Pipeline Run as a sub-issue of this run's and writes the `call` comment on it, with the bindings, where the child reads each bound file, and the formats the call accepts. `apply` performs it like any other.
 
-`git.*` and `pr.*` actions do nothing under `branching: flat`, which has no run branch. `tracker.*` actions need a tracker in `fab0.yaml`.
+`git.*` and `pr.*` actions do nothing under `branching: flat`, which has no run branch. `tracker.*` actions need a `tracker` in `fab0.yaml`, and act on the run's work item. A manual run and a child run have none: there `tracker.child.sync` and `tracker.child.close` keep no items and count as done, since the elements' Pipeline Steps stand for them, and every other `tracker.*` action fails in `apply` with "there is no item to act on".
 
-fab0 0.6's `git.remove-run-artifacts` is gone, and `validate` refuses it with a hint: a working file is a `store` artifact, which never reaches a product repository, so nothing is left to remove.
+fab0 0.6's `git.remove-run-artifacts` is gone, and `validate` refuses it with a hint: a working file is in the runs repository, which never reaches a product repository, so nothing is left to remove.
 
 ## git
 
@@ -38,10 +38,12 @@ fab0 0.6's `git.remove-run-artifacts` is gone, and `validate` refuses it with a 
 |---|---|---|
 | `pr.open-run` | `draft`: `true` to open it as a draft | Every repository whose run branch has work the base branch lacks has had a run pull request into the base branch. A repository the run hasn't changed gets none, since GitHub opens no pull request without a change. A run branch usually gets work after the run starts, so `apply` checks this action again after its last round and opens the pull request then. One a person closed stays closed, and one a person marked ready isn't turned back into a draft |
 | `pr.ready` | none | Every repository whose run branch has work has an open run pull request, and none is a draft. `apply` opens the missing ones, a closed one included, and marks drafts ready |
-| `pr.merge` | none | The run branch is merged into the base branch everywhere. Allowed only when `git.auto_merge` has `into: [base]` and `allow_base: true`; otherwise a person merges the run's pull request |
+| `pr.merge` | none | The run branch is merged into the base branch, in every repository where it has work. `apply` first opens any missing run pull request and marks drafts ready, as `pr.ready` does. Once every one's required checks pass, it merges each one through GitHub, at the run branch's head, so the base branch's rules apply, such as a ruleset that requires a pull request. Until then, the action waits |
 | `pr.comment` | `body` | The run's pull request in the home repo has a comment containing `body` |
 
-Every run pull request's body closes the run's item, `Closes <owner>/<repo>#<run>`, in whichever repository it is.
+A run that ends with `pr.ready` instead of `pr.merge` leaves the merge into the base branch to a person.
+
+When the run has a work item, every run pull request's body closes it, `Closes <owner>/<repo>#<n>`, in whichever repository the pull request is.
 
 ## tracker
 

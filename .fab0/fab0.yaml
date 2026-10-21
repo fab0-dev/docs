@@ -1,14 +1,17 @@
-# The docs factory: an issue of type Docs in fab0-dev/docs becomes a brief, reviewed in fab0-dev/fab0-runs,
-# then pages written and reviewed by agents and merged into the run branch; the docs owner merges the run
-# into main.
-schema: 2
+# The docs factory: an issue of type Docs in fab0-dev/docs becomes a brief and its task list, reviewed in a pull
+# request of fab0-dev/fab0-runs, then pages written and reviewed by agents and merged into the run branch; the run
+# merges into main once its checks pass.
+schema: 3
 repos:
   home:     {path: ., github: fab0-dev/docs, owner: docs-owner}
   product:  {path: ../fab0, github: fab0-dev/fab0, owner: product-owner}           # read: principles, roadmap
   core:     {path: ../fab0-core, github: fab0-dev/fab0-core, owner: developer}      # read: schemas, engine, skills
   examples: {path: ../fab0-examples, github: fab0-dev/fab0-examples, owner: developer}
+  # The runs repository, which fab0's factories share: this one keeps its files under runs/docs/. It holds the
+  # tracker's issues of every run.
+  runs:     {path: ../fab0-runs, github: fab0-dev/fab0-runs}
 people:
-  docs-owner:    {github: [eugenefurs]}   # approves briefs; merges the run into main
+  docs-owner:    {github: [eugenefurs]}   # approves briefs
   product-owner: {github: [eugenefurs]}
   developer:     {github: [eugenefurs]}
 tracker:
@@ -19,10 +22,8 @@ tracker:
 git:
   base: main
   branching: run
-  auto_merge: {into: [run]}
 parallel: {max: 3, cross_run: warn}
-# The runs repository, which fab0's factories share: this one keeps its runs under runs/docs/.
-store: {github: fab0-dev/fab0-runs, project: docs}
+tracking: {kind: github, github: fab0-dev/fab0-runs}
 models:
   claude-code: {deep: opus, balanced: sonnet, fast: haiku}
 profiles:
