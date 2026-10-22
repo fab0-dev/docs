@@ -1,5 +1,7 @@
 # fab0 documentation
 
+> **fab0 is being rebuilt.** These pages describe 0.10 and won't change until the rebuild's cutover, when they are rewritten against the new stack. The plan is [`REBUILD.md`](https://github.com/fab0-dev/fab0/blob/main/REBUILD.md) in the home repo.
+
 fab0 is a toolkit for building and operating software factories: pipelines of agents, commands and tools, written as short YAML files, with a gate on every transition, run on their own git branches, and tracked on GitHub.
 
 These pages describe the latest release of the `fab0` plugin, 0.10. Each run is an issue in a run tracker, with an issue for each of its steps, and those issues carry the run's state between steps and between factories. Every step defines its done in configuration, and its gate alone says who makes it hold: an agent, a command, or a person, in a pull request, on an issue or at the prompt. What runs produce for themselves are files in a runs repository, and the run store and its ledger are gone. 0.8 connects factories: a step of one factory runs a pipeline of another, in another repository. Coming from 0.9: see [Upgrade from 0.9](how-to/upgrade-from-0.9.md).
